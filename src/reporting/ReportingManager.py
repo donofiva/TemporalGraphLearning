@@ -1,14 +1,14 @@
 import pandas as pd
 
 from typing import Set
-from tgl.abstraction.entities.Turbine import Turbine
-from tgl.abstraction.entities.Day import Day
-from tgl.abstraction.entities.Timeslot import Timeslot
-from tgl.abstraction.entities.Dimension import Dimension
-from tgl.reporting.Report import Report
-from tgl.io.FileManager import FileManager
-from tgl.io.File import File
-from tgl.io.Directory import Directory
+from src.abstraction.entities.Turbine import Turbine
+from src.abstraction.entities.Day import Day
+from src.abstraction.entities.Timeslot import Timeslot
+from src.abstraction.entities.Dimension import Dimension
+from src.reporting.Report import Report
+from src.io.FileManager import FileManager
+from src.io.File import File
+from src.io.Directory import Directory
 
 
 class ReportingManager:

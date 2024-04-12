@@ -1,10 +1,10 @@
 import numpy as np
 
 from typing import Dict, Set
-from tgl.abstraction.entities.Day import Day
-from tgl.abstraction.entities.Turbine import Turbine
-from tgl.abstraction.entities.Dimension import Dimension
-from tgl.abstraction.entities.Timeslot import Timeslot
+from src.abstraction.entities.Day import Day
+from src.abstraction.entities.Turbine import Turbine
+from src.abstraction.entities.Dimension import Dimension
+from src.abstraction.entities.Timeslot import Timeslot
 
 
 class GridSnapshot:

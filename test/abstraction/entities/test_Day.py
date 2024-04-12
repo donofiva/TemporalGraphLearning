@@ -1,6 +1,6 @@
 import unittest
 
-from tgl.abstraction.entities.Day import Day
+from src.abstraction.entities.Day import Day
 
 
 class TestDay(unittest.TestCase):

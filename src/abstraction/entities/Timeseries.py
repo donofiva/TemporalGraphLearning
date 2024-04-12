@@ -1,6 +1,6 @@
 from typing import Dict
-from tgl.abstraction.entities.Day import Day
-from tgl.abstraction.entities.Timeslot import Timeslot
+from src.abstraction.entities.Day import Day
+from src.abstraction.entities.Timeslot import Timeslot
 
 
 class Timeseries:

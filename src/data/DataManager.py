@@ -1,8 +1,8 @@
 import pandas as pd
 
 from pathlib import Path
-from tgl.configuration.Configuration import Configuration
-from tgl.abstraction.entities.Dimension import Dimension
+from src.configuration.Configuration import Configuration
+from src.abstraction.entities.Dimension import Dimension
 
 
 class DataManager:

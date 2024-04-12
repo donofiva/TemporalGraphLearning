@@ -1,11 +1,11 @@
-from tgl.configuration.Configuration import Configuration
-from tgl.data.Field import Field
-from tgl.data.DataManager import DataManager
-from tgl.abstraction.AbstractionManager import AbstractionManager
-from tgl.io.FileManager import FileManager
-from tgl.io.Directory import Directory
-from tgl.io.File import File
-from tgl.reporting.ReportingManager import ReportingManager
+from src.configuration.Configuration import Configuration
+from src.data.Field import Field
+from src.data.DataManager import DataManager
+from src.abstraction.AbstractionManager import AbstractionManager
+from src.io.FileManager import FileManager
+from src.io.Directory import Directory
+from src.io.File import File
+from src.reporting.ReportingManager import ReportingManager
 
 
 def main():

@@ -1,8 +1,8 @@
 import os
 
 from pathlib import Path
-from tgl.io.Directory import Directory
-from tgl.io.File import File
+from src.io.Directory import Directory
+from src.io.File import File
 
 
 class FileManager:

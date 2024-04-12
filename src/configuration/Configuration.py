@@ -1,6 +1,6 @@
 from typing import Dict, List, Any
 from dataclasses import dataclass
-from tgl.data.Field import Field
+from src.data.Field import Field
 
 
 @dataclass

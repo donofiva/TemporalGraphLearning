@@ -1,6 +1,6 @@
 import unittest
 
-from tgl.abstraction.entities.Timeslot import Timeslot
+from src.abstraction.entities.Timeslot import Timeslot
 
 
 class TestDay(unittest.TestCase):

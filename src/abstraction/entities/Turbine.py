@@ -1,6 +1,6 @@
 from typing import List, Dict, Set, Optional
-from tgl.abstraction.entities.Dimension import Dimension
-from tgl.abstraction.entities.Timeseries import Timeseries
+from src.abstraction.entities.Dimension import Dimension
+from src.abstraction.entities.Timeseries import Timeseries
 
 
 class Turbine:

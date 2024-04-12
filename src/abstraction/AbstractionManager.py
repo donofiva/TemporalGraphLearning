@@ -1,13 +1,13 @@
 import pandas as pd
 
 from typing import Set, Tuple
-from tgl.abstraction.entities.Turbine import Turbine
-from tgl.abstraction.entities.Day import Day
-from tgl.abstraction.entities.Timeslot import Timeslot
-from tgl.abstraction.entities.Dimension import Dimension
-from tgl.abstraction.entities.Timeseries import Timeseries
-from tgl.abstraction.entities.GridSnapshot import GridSnapshot
-from tgl.threads.MultiThreadingManager import MultiThreadingManager
+from src.abstraction.entities.Turbine import Turbine
+from src.abstraction.entities.Day import Day
+from src.abstraction.entities.Timeslot import Timeslot
+from src.abstraction.entities.Dimension import Dimension
+from src.abstraction.entities.Timeseries import Timeseries
+from src.abstraction.entities.GridSnapshot import GridSnapshot
+from src.threads.MultiThreadingManager import MultiThreadingManager
 
 
 class AbstractionManager:
