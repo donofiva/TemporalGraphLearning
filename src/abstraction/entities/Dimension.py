@@ -1,0 +1,16 @@
+from enum import IntEnum, unique
+
+
+@ unique
+class Dimension(IntEnum):
+
+    WIND_SPEED = 0
+    WIND_DIRECTION = 1
+    EXTERNAL_TEMPERATURE = 2
+    INTERNAL_TEMPERATURE = 3
+    NACELLE_DIRECTION = 4
+    PITCH_ANGLE_FIRST_BLADE = 5
+    PITCH_ANGLE_SECOND_BLADE = 6
+    PITCH_ANGLE_THIRD_BLADE = 7
+    REACTIVE_POWER = 8
+    ACTIVE_POWER = 9
