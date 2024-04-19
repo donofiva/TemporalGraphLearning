@@ -185,5 +185,5 @@ fabric.properties
 .idea
 
 # Ignore I/O folders
-src/inputs/*
-src/outputs/*
+src/legacy/inputs/*
+src/legacy/outputs/*

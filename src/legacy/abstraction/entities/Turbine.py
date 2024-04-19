@@ -1,6 +1,7 @@
-from typing import List, Dict, Set, Optional
-from src.abstraction.entities.Dimension import Dimension
-from src.abstraction.entities.Timeseries import Timeseries
+import pandas as pd
+
+from typing import List, Dict, Set
+from legacy.abstraction.entities.Dimension import Dimension
 
 
 class Turbine:
@@ -40,7 +41,8 @@ class Turbine:
         self.y_axis = y_axis
 
         # Map dimension to timeseries
-        self._dimension_to_timeseries: Dict[Dimension, Timeseries] = dict()
+        self._timeseries: pd.DataFrame = pd.DataFrame()
+        self._dimension_to_timeseries: Dict[Dimension, pd.Series] = dict()
 
     def __hash__(self):
         return hash(self.key)
@@ -58,8 +60,8 @@ class Turbine:
     def key(self):
         return self.index
 
-    def store_timeseries_by_dimension(self, dimension: Dimension, timeseries: Timeseries):
-        self._dimension_to_timeseries[dimension] = timeseries
+    def store_timeseries(self, timeseries: pd.DataFrame):
+        self._timeseries = timeseries
 
-    def get_timeseries_by_dimension(self, dimension: Dimension) -> Optional[Timeseries]:
-        return self._dimension_to_timeseries.get(dimension)
+    def get_timeseries_by_dimension(self, dimension: Dimension):
+        return self._timeseries.loc[:, dimension.name]

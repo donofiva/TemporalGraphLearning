@@ -1,8 +1,8 @@
 import pandas as pd
 
 from pathlib import Path
-from src.configuration.Configuration import Configuration
-from src.abstraction.entities.Dimension import Dimension
+from legacy.configuration import Configuration
+from legacy.abstraction.entities.Dimension import Dimension
 
 
 class DataManager:
@@ -20,14 +20,14 @@ class DataManager:
         # Return filtered input file
         return input_file
 
-    def read_locations_input_file(self, locations_input_file_path: Path) -> pd.DataFrame:
+    def read_turbines_input_file(self, turbines_input_file_path: Path) -> pd.DataFrame:
 
         # Read input file
-        locations = pd.read_csv(locations_input_file_path)
-        locations.columns = ['TURBINE', 'X_AXIS', 'Y_AXIS']
+        turbines = pd.read_csv(turbines_input_file_path)
+        turbines.columns = ['TURBINE', 'X_AXIS', 'Y_AXIS']
 
         # Filter input file
-        return self._filter_input_file(locations)
+        return self._filter_input_file(turbines)
 
     def read_timeseries_input_file(self, timeseries_input_file_path: Path) -> pd.DataFrame:
 

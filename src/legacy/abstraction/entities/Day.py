@@ -41,6 +41,9 @@ class Day:
     def __le__(self, other: "Day"):
         return self < other or self == other
 
+    def __str__(self):
+        return f'DAY_{self.index}'
+
     @property
     def key(self):
         return self.index

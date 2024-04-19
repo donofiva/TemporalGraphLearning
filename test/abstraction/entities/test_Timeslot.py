@@ -1,6 +1,6 @@
 import unittest
 
-from src.abstraction.entities.Timeslot import Timeslot
+from legacy.abstraction.entities import Timeslot
 
 
 class TestDay(unittest.TestCase):

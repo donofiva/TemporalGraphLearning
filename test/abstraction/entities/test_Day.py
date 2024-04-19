@@ -1,6 +1,6 @@
 import unittest
 
-from src.abstraction.entities.Day import Day
+from legacy.abstraction.entities import Day
 
 
 class TestDay(unittest.TestCase):

@@ -1,11 +1,11 @@
 import pandas as pd
 
 from typing import Set
-from src.abstraction.entities.Turbine import Turbine
-from src.abstraction.entities.Day import Day
-from src.abstraction.entities.Timeslot import Timeslot
-from src.abstraction.entities.Dimension import Dimension
-from src.reporting.Report import Report
+from legacy.abstraction.entities.Turbine import Turbine
+from legacy.abstraction.entities.Day import Day
+from legacy.abstraction.entities import Timeslot
+from legacy.abstraction.entities.Dimension import Dimension
+from legacy.reporting.Report import Report
 from src.io.FileManager import FileManager
 from src.io.File import File
 from src.io.Directory import Directory
@@ -14,7 +14,7 @@ from src.io.Directory import Directory
 class ReportingManager:
 
     _report_to_file = {
-        Report.LOCATIONS: File.LOCATIONS,
+        Report.TURBINES: File.TURBINES,
         Report.TIMESERIES: File.TIMESERIES
     }
 
@@ -29,9 +29,9 @@ class ReportingManager:
         )
 
     @staticmethod
-    def store_locations_report(turbines: Set[Turbine]):
+    def store_turbines_report(turbines: Set[Turbine]):
         ReportingManager._store_report(
-            report_identifier=Report.LOCATIONS,
+            report_identifier=Report.TURBINES,
             report_data=pd.DataFrame(
                 [(turbine.index, turbine.x_axis, turbine.y_axis) for turbine in turbines],
                 columns=['TURBINE', 'X_AXIS', 'Y_AXIS']

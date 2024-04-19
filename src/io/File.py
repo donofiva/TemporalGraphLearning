@@ -4,5 +4,5 @@ from enum import Enum, unique
 @unique
 class File(Enum):
 
-    LOCATIONS = 'locations.csv'
+    TURBINES = 'turbines.csv'
     TIMESERIES = 'timeseries.csv'
