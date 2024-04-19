@@ -1,1 +1,1 @@
-from src import charts
+from . import charts
