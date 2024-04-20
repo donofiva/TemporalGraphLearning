@@ -7,14 +7,14 @@ from temporal_graph_learning.charts.Plot import Plot
 
 class Histogram:
 
-    def __init__(self, bins: int, left_bound: float = None, right_bound: float = None):
+    def __init__(self, bins: int, left_boundary: float = None, right_boundary: float = None):
 
         # Histogram bins
         self.bins = bins
 
         # Store histogram interval bounds
-        self._left_boundary = left_bound
-        self._right_boundary = right_bound
+        self._left_boundary = left_boundary
+        self._right_boundary = right_boundary
 
     def draw_on_plot(self, datapoints: Union[pd.Series, List], plot: Plot):
 
