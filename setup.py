@@ -1,25 +1,21 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='temporal_graph_learning',  # This is the name of your package
-    version='0.1.0',                 # The initial release version
-    author='Your Name',              # Optional: your name or your organization’s name
-    author_email='your.email@example.com',  # Optional: your email address
-    description='A brief description of what your package does',  # Optional but recommended
-    packages=find_packages(where='src'),  # This finds all modules in 'src' directory
-    package_dir={'': 'src'},  # Tells distutils that everything under 'src' is part of the package
+    name='temporal_graph_learning',
+    version='0.1.0',
+    author='Your Name',
+    author_email='your.email@example.com',
+    description='A brief description of what your package does',
+    package_dir={'': 'src'},  # Points to the top-level folder where packages are
+    packages=find_packages(where='src'),  # Automatically find all packages in src/
     install_requires=[
-        # List all packages that your package depends on:
-        # 'numpy',
-        # 'pandas',
-        # etc.
+        # dependencies here
     ],
     classifiers=[
-        'Development Status :: 3 - Alpha',    # Choose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
-        'Intended Audience :: Developers',    # Define your audience
-        'Natural Language :: English',        # Optional: main language used in your package
-        'Operating System :: OS Independent', # Should work on any OS
-        'Programming Language :: Python :: 3', # Supported Python versions
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
