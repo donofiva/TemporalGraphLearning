@@ -2,7 +2,7 @@ from typing import List, Set
 
 from legacy.abstraction.entities.Turbine import Turbine
 from legacy.abstraction.entities import Snapshot
-from temporal_graph_learning.legacy.model import Comparisons
+from legacy.model import Comparisons
 
 
 class AbnormalValuesManager:

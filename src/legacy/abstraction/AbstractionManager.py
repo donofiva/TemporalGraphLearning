@@ -2,7 +2,7 @@ import pandas as pd
 
 from typing import Set
 from legacy.abstraction.entities.Turbine import Turbine
-from temporal_graph_learning.legacy.abstraction.entities.Day import Day
+from legacy.abstraction.entities.Day import Day
 from legacy.abstraction.entities import Timeslot
 from legacy.abstraction.entities import Snapshot
 

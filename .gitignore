@@ -185,5 +185,5 @@ fabric.properties
 .idea
 
 # Ignore I/O folders
-src/temporal_graph_learning/legacy/inputs/*
-src/temporal_graph_learning/legacy/outputs/*
+src/legacy/inputs/*
+src/legacy/outputs/*

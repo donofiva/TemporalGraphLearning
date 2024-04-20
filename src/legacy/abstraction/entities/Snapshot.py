@@ -1,6 +1,6 @@
 import pandas as pd
 
-from temporal_graph_learning.legacy.abstraction.entities.Day import Day
+from legacy.abstraction.entities.Day import Day
 from legacy.abstraction.entities.Turbine import Turbine
 from legacy.abstraction.entities.Dimension import Dimension
 from legacy.abstraction.entities import Timeslot
