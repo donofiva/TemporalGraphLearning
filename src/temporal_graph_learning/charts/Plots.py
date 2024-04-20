@@ -40,6 +40,7 @@ class Plots:
     def __del__(self):
         plt.close(self._figure)
 
+    # Setup
     def _build_plots_abstraction_from_plots_grid(self, plots_grid) -> List[List[Plot]]:
 
         # Make sure to always have a plots matrix
@@ -52,6 +53,7 @@ class Plots:
     def _squeeze_plots_grid(plots_grid: List[List[Plot]]) -> List[Plot]:
         return list(itertools.chain.from_iterable(plots_grid))
 
+    # Getters
     def get_plots_grid(self) -> List[List[Plot]]:
         return self._plots_grid
 
@@ -67,6 +69,12 @@ class Plots:
     def get_plot_from_list_by_index(self, index: int) -> Plot:
         return self._plots_list[index]
 
+    # Configuration
+    @staticmethod
+    def set_tight_layout():
+        plt.tight_layout()
+
+    # Output
     @staticmethod
     def show():
         plt.show()
