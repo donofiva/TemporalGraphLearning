@@ -1,6 +1,8 @@
 from enum import Enum, unique
 import matplotlib.pyplot as plt
 
+from temporal_graph_learning.charts.ChartsConstants import ChartsConstants
+
 
 @unique
 class Position(Enum):
@@ -53,6 +55,17 @@ class Plot:
 
     def set_y_axis_boundaries(self, left_boundary: float, right_boundary: float):
         self._pointer.set_ylim(left_boundary, right_boundary)
+
+    # Grid
+    def toggle_x_axis_grid(self, is_active: bool = True):
+        self._pointer.grid(is_active, axis='x', color=ChartsConstants.GRID_COLOR.value)
+
+    def toggle_y_axis_grid(self, is_active: bool = True):
+        self._pointer.grid(is_active, axis='y', color=ChartsConstants.GRID_COLOR.value)
+
+    def toggle_grid(self, is_active: bool = True):
+        self.toggle_x_axis_grid(is_active)
+        self.toggle_y_axis_grid(is_active)
 
     # Blank axes
     def empty(self):
