@@ -16,6 +16,6 @@ class Timeseries:
 
         # Define daily index and labels
         daily_index = timeseries_index[::samples_per_day] + timeseries_index[-1:]
-        daily_labels = [f'Day {index + 1}' for index, _ in enumerate(daily_index[:-1])]
+        daily_labels = [f'Day {index + 1}' for index, _ in enumerate(daily_index)]
 
         return daily_index, daily_labels
