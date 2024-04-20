@@ -4,7 +4,7 @@ setup(
     name='temporal_graph_learning',
     version='0.0.1',
     packages=find_packages(where='src'),
-    package_dir={'temporal_graph_learning': 'src'},
+    package_dir={'src': ''},
     install_requires=[
         'pandas'
     ],
