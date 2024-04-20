@@ -9,7 +9,7 @@ class FileManager:
         os.makedirs(path, exist_ok=True)
 
     @staticmethod
-    def directory_resolve(directories: List[str]):
+    def directory_resolve(*directories: str):
         return '/'.join(directories)
 
     @staticmethod
