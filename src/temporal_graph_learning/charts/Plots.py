@@ -1,11 +1,9 @@
 import itertools
+import numpy as np
 import matplotlib.pyplot as plt
 
 from typing import List
-
-import numpy as np
-
-from src.charts.Plot import Plot
+from temporal_graph_learning.charts.Plot import Plot
 
 
 class Plots:

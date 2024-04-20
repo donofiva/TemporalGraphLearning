@@ -1,6 +1,5 @@
-import matplotlib.pyplot as plt
-
 from enum import Enum, unique
+import matplotlib.pyplot as plt
 
 
 @unique

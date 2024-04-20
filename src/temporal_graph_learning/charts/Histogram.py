@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from typing import Union, List
-from src.charts.Plot import Plot
+from temporal_graph_learning.charts.Plot import Plot
 
 
 class Histogram:
