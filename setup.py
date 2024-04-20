@@ -6,8 +6,8 @@ setup(
     author='Your Name',
     author_email='your.email@example.com',
     description='A brief description of what your package does',
-    package_dir={'': 'src'},  # Points to the top-level folder where packages are
-    packages=find_packages(where='src'),  # Automatically find all packages in src/
+    package_dir={'': 'src'},
+    packages=find_packages(where='src'),
     install_requires=[
         # dependencies here
     ],
