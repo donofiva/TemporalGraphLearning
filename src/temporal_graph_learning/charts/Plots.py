@@ -70,3 +70,7 @@ class Plots:
     @staticmethod
     def show():
         plt.show()
+
+    @staticmethod
+    def save(destination: str):
+        plt.savefig(destination)
