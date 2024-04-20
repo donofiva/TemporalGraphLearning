@@ -1,6 +1,6 @@
 import unittest
 
-from legacy.abstraction.entities import Day
+from temporal_graph_learning.legacy.abstraction.entities import Day
 
 
 class TestDay(unittest.TestCase):

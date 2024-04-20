@@ -1,7 +1,7 @@
 from typing import Dict, List, Any
 from dataclasses import dataclass
 from legacy.data.Field import Field
-from legacy.model import Comparisons
+from temporal_graph_learning.legacy.model import Comparisons
 
 
 @dataclass
