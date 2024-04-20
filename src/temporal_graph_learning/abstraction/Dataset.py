@@ -13,7 +13,7 @@ class Dataset:
 
         # Define dataframe slices
         slice_entities_to_dataframe = list(self._dataframe.groupby(dimensions, as_index=False))
-        slice_entities_to_dataframe += int(include_all) * [('ALL', ), self._dataframe]
+        slice_entities_to_dataframe += int(include_all) * [(('ALL', ), self._dataframe)]
 
         # Convert dataframe slices to datasets
         return [
