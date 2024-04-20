@@ -1,6 +1,7 @@
-from enum import Enum, unique
 import matplotlib.pyplot as plt
 
+from typing import List
+from enum import Enum, unique
 from temporal_graph_learning.charts.ChartsConstants import ChartsConstants
 
 
@@ -66,6 +67,13 @@ class Plot:
     def toggle_grid(self, is_active: bool = True):
         self.toggle_x_axis_grid(is_active)
         self.toggle_y_axis_grid(is_active)
+
+    # Ticks
+    def set_x_axis_ticks(self, ticks: List):
+        self._pointer.set_xticks(ticks)
+
+    def set_x_axis_ticks_labels(self, tick_labels: List, rotation: int = 0):
+        self._pointer.set_xticklabels(tick_labels, rotation=rotation)
 
     # Blank axes
     def empty(self):

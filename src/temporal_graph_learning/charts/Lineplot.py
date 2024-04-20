@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from typing import Union, List, Tuple
+from typing import Union, List
 from temporal_graph_learning.charts.Plot import Plot
 
 
@@ -11,19 +11,6 @@ class Lineplot:
 
         # Store lineplot configuration
         self._highlight_missing_values = highlight_missing_values
-
-    @staticmethod
-    def get_daily_index_and_labels_from_timeseries_index(timeseries_index: List[int]) -> Tuple[List[int], List[str]]:
-
-        # Define temporal anchors to produce ticks
-        samples_per_hour = 6
-        hours_per_day = 24
-
-        # Generate daily ticks and labels
-        daily_index = timeseries_index[::(samples_per_hour * hours_per_day)] + [timeseries_index[-1]]
-        daily_labels = [''] + [f'Day {index + 1}' for index, _ in enumerate(daily_index[:-1])]
-
-        return daily_index, daily_labels
 
     def draw_on_plot(self, datapoints: Union[pd.Series, List], plot: Plot):
 
