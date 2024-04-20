@@ -17,7 +17,7 @@ class Dataset:
 
         # Convert dataframe slices to datasets
         return [
-            (slice_entities, Dataset(dataframe))
+            (slice_entities, Dataset(dataframe.reset_index(drop=True)))
             for slice_entities, dataframe in slice_entities_to_dataframe
         ]
 
