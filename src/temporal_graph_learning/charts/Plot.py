@@ -80,6 +80,12 @@ class Plot:
     def set_x_axis_ticks_labels(self, tick_labels: List, rotation: int = 0):
         self._pointer.set_xticklabels(tick_labels, rotation=rotation)
 
+    def set_y_axis_ticks(self, ticks: List):
+        self._pointer.set_yticks(ticks)
+
+    def set_y_axis_ticks_labels(self, tick_labels: List, rotation: int = 0):
+        self._pointer.set_yticklabels(tick_labels, rotation=rotation)
+
     # Blank axes
     def empty(self):
         self._pointer.axis('off')

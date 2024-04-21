@@ -13,7 +13,7 @@ class Heatmap:
             maximum_value: float = None,
             minimum_value: float = None,
             show_values: bool = False,
-            color_map = None
+            color_map=None
     ):
 
         self.maximum_value = maximum_value
