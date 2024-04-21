@@ -6,9 +6,32 @@ from typing import List, Tuple, Any
 class Dataset:
 
     def __init__(self, dataframe: pd.DataFrame):
-        self._dataframe = dataframe
+        self._dataframe = dataframe.reset_index(drop=True)
 
     # Transformations
+    def get_missing_values_by_dimension(self, label: str = None) -> "Dataset":
+        return Dataset(
+            pd.DataFrame(
+                self._dataframe.isna().sum(),
+                columns=[label or 'MISSING_VALUES']
+            )
+        )
+
+    def pivot_on_dimensions(
+            self,
+            column_dimensions: List[str],
+            index_dimensions: List[str],
+            values_dimension: str
+    ) -> "Dataset":
+        return Dataset(
+            pd.pivot_table(
+                self._dataframe,
+                columns=column_dimensions,
+                index=index_dimensions,
+                values=values_dimension
+            )
+        )
+
     def slice_on_dimensions(self,  dimensions: List[str], include_all: bool = False) -> List[Tuple[Any, "Dataset"]]:
 
         # Define dataframe slices

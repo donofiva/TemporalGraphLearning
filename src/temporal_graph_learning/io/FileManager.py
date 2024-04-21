@@ -13,5 +13,5 @@ class FileManager:
         return '/'.join(directories)
 
     @staticmethod
-    def file_resolve_file_path(directory: str, file: str):
+    def file_resolve_path(directory: str, file: str):
         return '/'.join([directory, file])
