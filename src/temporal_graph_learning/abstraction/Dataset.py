@@ -14,7 +14,7 @@ class Dataset:
             pd.DataFrame(
                 self._dataframe.isna().sum(),
                 columns=[label or 'MISSING_VALUES']
-            ).reset_index(drop=False)
+            )
         )
 
     def pivot_on_dimensions(
@@ -29,7 +29,7 @@ class Dataset:
                 columns=column_dimensions,
                 index=index_dimensions,
                 values=values_dimension
-            ).reset_index(drop=False)
+            )
         )
 
     def slice_on_dimensions(self,  dimensions: List[str], include_all: bool = False) -> List[Tuple[Any, "Dataset"]]:
