@@ -6,7 +6,7 @@ from typing import List, Tuple, Any
 class Dataset:
 
     def __init__(self, dataframe: pd.DataFrame):
-        self._dataframe = dataframe.reset_index(drop=True)
+        self._dataframe = dataframe
 
     # Transformations
     def get_missing_values_by_dimension(self, label: str = None) -> "Dataset":
@@ -29,7 +29,7 @@ class Dataset:
                 columns=column_dimensions,
                 index=index_dimensions,
                 values=values_dimension
-            )
+            ).reset_index(drop=True)
         )
 
     def slice_on_dimensions(self,  dimensions: List[str], include_all: bool = False) -> List[Tuple[Any, "Dataset"]]:
