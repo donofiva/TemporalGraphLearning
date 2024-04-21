@@ -70,6 +70,9 @@ class Plots:
         return self._plots_list[index]
 
     # Configuration
+    def set_title(self, title: str):
+        self._figure.suptitle(title)
+
     @staticmethod
     def set_tight_layout():
         plt.tight_layout()
