@@ -13,12 +13,7 @@ class Scatterplot:
         # Store heatmap configuration
         self._opacity = max(1.0, opacity)
 
-    def draw_on_plot(
-            self,
-            datapoints_x: Union[pd.Series, List],
-            datapoints_y: Union[pd.Series, List],
-            plot: Plot
-    ):
+    def draw_on_plot(self, datapoints_x: Union[pd.Series, List], datapoints_y: Union[pd.Series, List], plot: Plot):
 
         # Convert datapoints to NumPy array
         datapoints_x = np.array(datapoints_x)
