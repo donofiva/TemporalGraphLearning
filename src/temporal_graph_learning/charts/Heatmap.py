@@ -13,13 +13,16 @@ class Heatmap:
             maximum_value: float = None,
             minimum_value: float = None,
             show_values: bool = False,
-            color_map=None
+            color_map=None,
+            symmetric: bool = False
     ):
 
-        self.maximum_value = maximum_value
-        self.minimum_value = minimum_value
-        self.show_values = show_values
-        self.color_map = color_map
+        # Store heatmap configuration
+        self._maximum_value = maximum_value
+        self._minimum_value = minimum_value
+        self._show_values = show_values
+        self._color_map = color_map
+        self._symmetric = symmetric
 
     def draw_on_plot(self, datapoints: Union[pd.DataFrame, np.array], plot: Plot):
 
@@ -27,13 +30,21 @@ class Heatmap:
         if isinstance(datapoints, pd.DataFrame):
             datapoints = datapoints.values
 
+        # Heatmaps usually do not require any mask
+        triangular_mask = None
+
+        # Symmetric heatmaps require triangular mask to cover redundant data
+        if self._symmetric:
+            triangular_mask = np.triu(np.ones_like(datapoints, dtype=bool))
+
         # Draw heatmap
         sns.heatmap(
             datapoints,
-            vmin=self.minimum_value,
-            vmax=self.maximum_value,
-            annot=self.show_values,
+            vmin=self._minimum_value,
+            vmax=self._maximum_value,
+            annot=self._show_values,
             square=True,
-            cmap=self.color_map,
+            cmap=self._color_map,
+            mask=triangular_mask,
             ax=plot.get_pointer()
         )
