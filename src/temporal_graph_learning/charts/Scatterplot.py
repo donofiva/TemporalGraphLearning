@@ -8,7 +8,7 @@ from temporal_graph_learning.charts.Plot import Plot
 
 class Scatterplot:
 
-    def __init__(self, opacity: float):
+    def __init__(self, opacity: float = 1):
 
         # Store heatmap configuration
         self._opacity = max(1.0, opacity)
