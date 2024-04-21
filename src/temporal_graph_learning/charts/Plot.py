@@ -2,7 +2,12 @@ import matplotlib.pyplot as plt
 
 from typing import List
 from enum import Enum, unique
-from temporal_graph_learning.charts.ChartsConstants import ChartsConstants
+
+
+@unique
+class Colors(Enum):
+
+    LIGHT_GREY = '#eaeaea'
 
 
 @unique
@@ -59,10 +64,10 @@ class Plot:
 
     # Grid
     def toggle_x_axis_grid(self, is_active: bool = True):
-        self._pointer.grid(is_active, axis='x', color=ChartsConstants.GRID_COLOR.value)
+        self._pointer.grid(is_active, axis='x', color=Colors.LIGHT_GREY.value)
 
     def toggle_y_axis_grid(self, is_active: bool = True):
-        self._pointer.grid(is_active, axis='y', color=ChartsConstants.GRID_COLOR.value)
+        self._pointer.grid(is_active, axis='y', color=Colors.LIGHT_GREY.value)
 
     def toggle_grid(self, is_active: bool = True):
         self.toggle_x_axis_grid(is_active)
