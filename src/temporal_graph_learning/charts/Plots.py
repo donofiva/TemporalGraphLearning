@@ -15,12 +15,16 @@ class Plots:
             row_width: int = 1,
             column_width: int = 1,
             share_x_axis: bool = False,
-            share_y_axis: bool = False
+            share_y_axis: bool = False,
+            width_ratios: List[int] = None,
+            height_ratios: List[int] = None
     ):
 
         # Store rows and columns configuration
         self.rows = rows
         self.columns = columns
+        self._width_ratios = width_ratios
+        self._height_ratios = height_ratios
 
         # Generate subplots references
         self._figure, plots_grid = plt.subplots(
@@ -28,7 +32,11 @@ class Plots:
             columns,
             figsize=(row_width * rows, column_width * columns),
             sharex=share_x_axis,
-            sharey=share_y_axis
+            sharey=share_y_axis,
+            gridspec_kw={
+                'width_ratios': self._width_ratios,
+                'height_ratios': self._height_ratios
+            }
         )
 
         # Build plots abstraction from plots grid

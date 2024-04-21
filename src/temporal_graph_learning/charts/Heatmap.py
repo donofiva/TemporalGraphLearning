@@ -14,6 +14,7 @@ class Heatmap:
             minimum_value: float = None,
             show_values: bool = False,
             color_map=None,
+            square_ratio: bool = False,
             symmetric: bool = False
     ):
 
@@ -22,9 +23,15 @@ class Heatmap:
         self._minimum_value = minimum_value
         self._show_values = show_values
         self._color_map = color_map
+        self._square_ratio = square_ratio
         self._symmetric = symmetric
 
-    def draw_on_plot(self, datapoints: Union[pd.DataFrame, np.array], plot: Plot):
+    def draw_on_plot(
+            self,
+            datapoints: Union[pd.DataFrame, np.array],
+            heatmap_plot: Plot,
+            colorbar_plot: Plot = None
+    ):
 
         # Covert Pandas dataframe to NumPy matrix
         if isinstance(datapoints, pd.DataFrame):
@@ -43,8 +50,9 @@ class Heatmap:
             vmin=self._minimum_value,
             vmax=self._maximum_value,
             annot=self._show_values,
-            square=True,
+            square=self._square_ratio,
             cmap=self._color_map,
             mask=triangular_mask,
-            ax=plot.get_pointer()
+            ax=heatmap_plot.get_pointer(),
+            cbar_ax=(colorbar_plot.get_pointer() if colorbar_plot else None)
         )
