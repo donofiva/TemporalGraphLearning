@@ -11,7 +11,7 @@ class Scatterplot:
     def __init__(self, opacity: float = 1):
 
         # Store heatmap configuration
-        self._opacity = max(1.0, opacity)
+        self._opacity = min(1.0, opacity)
 
     def draw_on_plot(self, datapoints_x: Union[pd.Series, List], datapoints_y: Union[pd.Series, List], plot: Plot):
 
