@@ -14,6 +14,7 @@ setup(
         'scipy',
         'statsmodels',
         'matplotlib',
-        'seaborn'
+        'seaborn',
+        'scikit-learn'
     ]
 )
