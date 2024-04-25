@@ -11,12 +11,12 @@ class LinearInterpolationImputer(BaseEstimator, TransformerMixin):
     def _linear_interpolation(series: pd.Series):
 
         # Store actual values
-        actual_values = ~series.isnull()
+        actual_values_mask = ~series.isnull()
 
         # Define interpolation method
         linear_interpolation = interp1d(
-            series[actual_values].index,
-            series[actual_values],
+            series[actual_values_mask].index,
+            series[actual_values_mask],
             kind='linear',
             fill_value='extrapolate',
             bounds_error=False
@@ -41,13 +41,16 @@ class LinearInterpolationImputer(BaseEstimator, TransformerMixin):
             X = self._linear_interpolation(pd.Series(X))
 
         elif isinstance(X, pd.Series):
-            X = self._linear_interpolation(pd.Series(X))
+            X = self._linear_interpolation(X)
 
         elif isinstance(X, np.ndarray) and X.ndim == 2:
             X = pd.DataFrame(X).apply(self._linear_interpolation)
 
         elif isinstance(X, pd.DataFrame):
             X = X.apply(self._linear_interpolation)
+
+        else:
+            raise TypeError("Unsupported data type. X must be a numpy array, pandas DataFrame, or pandas Series.")
 
         # Convert back to original input type
         if X_type in {list, np.ndarray}:
