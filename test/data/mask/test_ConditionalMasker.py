@@ -1,7 +1,4 @@
 import unittest
-
-import numpy as np
-
 from temporal_graph_learning.data.mask.ConditionalMasker import *
 
 
@@ -16,10 +13,10 @@ class TestConditionalMasker(unittest.TestCase):
 
     def test_mask_greater_than(self):
         masker = ConditionalMasker([
-            MaskingCondition(
+            MaskingRule(
                 dimensions='A',
-                comparisons=[
-                    MaskingComparison('C', MaskingComparisonType.GREATER, 25)
+                conditions=[
+                    MaskingCondition('C', MaskingComparison.GREATER, 25)
                 ]
             )
         ])
@@ -29,10 +26,10 @@ class TestConditionalMasker(unittest.TestCase):
 
     def test_mask_less_than(self):
         masker = ConditionalMasker([
-            MaskingCondition(
+            MaskingRule(
                 dimensions='B',
-                comparisons=[
-                    MaskingComparison('C', MaskingComparisonType.LESS, 25)
+                conditions=[
+                    MaskingCondition('C', MaskingComparison.LESS, 25)
                 ]
             )
         ])
@@ -42,11 +39,11 @@ class TestConditionalMasker(unittest.TestCase):
 
     def test_multiple_conditions(self):
         masker = ConditionalMasker([
-            MaskingCondition(
+            MaskingRule(
                 dimensions='B',
-                comparisons=[
-                    MaskingComparison('A', MaskingComparisonType.GREATER, 1),
-                    MaskingComparison('C', MaskingComparisonType.LESS, 50)
+                conditions=[
+                    MaskingCondition('A', MaskingComparison.GREATER, 1),
+                    MaskingCondition('C', MaskingComparison.LESS, 50)
                 ]
             )
         ])
@@ -56,10 +53,10 @@ class TestConditionalMasker(unittest.TestCase):
 
     def test_mask_equal_to(self):
         masker = ConditionalMasker([
-            MaskingCondition(
+            MaskingRule(
                 dimensions='B',
-                comparisons=[
-                    MaskingComparison('A', MaskingComparisonType.EQUAL, 2)
+                conditions=[
+                    MaskingCondition('A', MaskingComparison.EQUAL, 2)
                 ]
             )
         ])
@@ -70,10 +67,10 @@ class TestConditionalMasker(unittest.TestCase):
 
     def test_mask_not_equal_to(self):
         masker = ConditionalMasker([
-            MaskingCondition(
+            MaskingRule(
                 dimensions='B',
-                comparisons=[
-                    MaskingComparison('A', MaskingComparisonType.NOT_EQUAL, 3)
+                conditions=[
+                    MaskingCondition('A', MaskingComparison.NOT_EQUAL, 3)
                 ]
             )
         ])
@@ -83,10 +80,10 @@ class TestConditionalMasker(unittest.TestCase):
 
     def test_mask_in(self):
         masker = ConditionalMasker([
-            MaskingCondition(
+            MaskingRule(
                 dimensions='A',
-                comparisons=[
-                    MaskingComparison('A', MaskingComparisonType.IN, {2, 4})
+                conditions=[
+                    MaskingCondition('A', MaskingComparison.IN, {2, 4})
                 ]
             )
         ])
@@ -96,10 +93,10 @@ class TestConditionalMasker(unittest.TestCase):
 
     def test_mask_not_in(self):
         masker = ConditionalMasker([
-            MaskingCondition(
+            MaskingRule(
                 dimensions='A',
-                comparisons=[
-                    MaskingComparison('A', MaskingComparisonType.NOT_IN, {2, 4})
+                conditions=[
+                    MaskingCondition('A', MaskingComparison.NOT_IN, {2, 4})
                 ]
             )
         ])
@@ -109,10 +106,10 @@ class TestConditionalMasker(unittest.TestCase):
 
     def test_input_validation(self):
         masker = ConditionalMasker([
-            MaskingCondition(
+            MaskingRule(
                 dimensions='A',
-                comparisons=[
-                    MaskingComparison('C', MaskingComparisonType.GREATER, 25)
+                conditions=[
+                    MaskingCondition('C', MaskingComparison.GREATER, 25)
                 ]
             )
         ])

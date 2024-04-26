@@ -7,7 +7,7 @@ from typing import Any, List, Union
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
-class MaskingComparisonType(Enum):
+class MaskingComparison(Enum):
 
     GREATER = 0
     LESS = 1
@@ -18,34 +18,34 @@ class MaskingComparisonType(Enum):
 
     def compare(self, target, value):
         return {
-            MaskingComparisonType.GREATER: lambda x, y: x > y,
-            MaskingComparisonType.LESS: lambda x, y: x < y,
-            MaskingComparisonType.EQUAL: lambda x, y: x == y,
-            MaskingComparisonType.NOT_EQUAL: lambda x, y: x != y,
-            MaskingComparisonType.IN: lambda x, y: x.isin(y),
-            MaskingComparisonType.NOT_IN: lambda x, y: ~x.isin(y),
+            MaskingComparison.GREATER: lambda x, y: x > y,
+            MaskingComparison.LESS: lambda x, y: x < y,
+            MaskingComparison.EQUAL: lambda x, y: x == y,
+            MaskingComparison.NOT_EQUAL: lambda x, y: x != y,
+            MaskingComparison.IN: lambda x, y: x.isin(y),
+            MaskingComparison.NOT_IN: lambda x, y: ~x.isin(y),
         }[self](target, value)
-
-
-@dataclass
-class MaskingComparison:
-
-    dimension: str
-    type: MaskingComparisonType
-    value: Any
 
 
 @dataclass
 class MaskingCondition:
 
+    dimension: str
+    comparison: MaskingComparison
+    value: Any
+
+
+@dataclass
+class MaskingRule:
+
     dimensions: Union[str, List[str]]
-    comparisons: List[MaskingComparison]
+    conditions: List[MaskingCondition]
 
 
 class ConditionalMasker(BaseEstimator, TransformerMixin):
 
-    def __init__(self, masking_conditions: List[MaskingCondition] = None):
-        self._masking_conditions = masking_conditions or set()
+    def __init__(self, masking_rules: List[MaskingRule] = None):
+        self._masking_rules = masking_rules or set()
 
     @staticmethod
     def _parse_masking_condition_dimensions(X, dimensions: Union[str, List[str]]):
@@ -70,16 +70,19 @@ class ConditionalMasker(BaseEstimator, TransformerMixin):
         X = X.copy()
 
         # Apply masking conditions iteratively
-        for condition in self._masking_conditions:
+        for masking_rule in self._masking_rules:
 
             # Create a mask for all comparisons related to the current condition
-            conditional_mask = pd.Series([True] * X.shape[0], index=X.index)
+            mask = pd.Series([True] * X.shape[0], index=X.index)
 
             # Evaluate all comparisons related to the current condition and accumulate masking conditions
-            for comparison in condition.comparisons:
-                conditional_mask &= comparison.type.compare(X[comparison.dimension], comparison.value)
+            for masking_condition in masking_rule.conditions:
+                mask &= masking_condition.comparison.compare(
+                    X[masking_condition.dimension],
+                    masking_condition.value
+                )
 
             # Apply the combined mask to the target column
-            X.loc[conditional_mask, self._parse_masking_condition_dimensions(X, condition.dimensions)] = np.nan
+            X.loc[mask, self._parse_masking_condition_dimensions(X, masking_rule.dimensions)] = np.nan
 
         return X
