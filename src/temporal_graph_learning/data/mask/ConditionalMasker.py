@@ -73,11 +73,11 @@ class ConditionalMasker(BaseEstimator, TransformerMixin):
         for condition in self._masking_conditions:
 
             # Create a mask for all comparisons related to the current condition
-            conditional_mask = pd.Series([False] * X.shape[0], index=X.index)
+            conditional_mask = pd.Series([True] * X.shape[0], index=X.index)
 
             # Evaluate all comparisons related to the current condition and accumulate masking conditions
             for comparison in condition.comparisons:
-                conditional_mask |= comparison.type.compare(X[comparison.dimension], comparison.value)
+                conditional_mask &= comparison.type.compare(X[comparison.dimension], comparison.value)
 
             # Apply the combined mask to the target column
             X.loc[conditional_mask, self._parse_masking_condition_dimensions(X, condition.dimensions)] = np.nan
