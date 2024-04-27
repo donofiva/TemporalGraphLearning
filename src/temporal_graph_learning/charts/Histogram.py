@@ -34,17 +34,3 @@ class Histogram:
         # Draw histogram
         plot.get_pointer().stairs(counts, edges, fill=True)
         plot.get_pointer().vlines(edges, 0, counts.max(), colors='w')
-
-
-# if __name__ == '__main__':
-#
-#     plots = Plots(1, 1, row_width=12, column_width=9)
-#     plot = plots.get_plot_from_list_by_index(0)
-#     plot.set_axis_labels('Ivan', 'Nadine')
-#     plot.toggle_top_and_right_border(False)
-#     plot.set_x_axis_boundaries(-10, 10)
-#
-#     hist = Histogram(100, -10, 10)
-#     hist.draw_on_plot(np.random.normal(size=10000), plot)
-#
-#     plots.show()
