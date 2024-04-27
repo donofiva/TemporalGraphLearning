@@ -7,7 +7,9 @@ class Dataset:
 
     # Transformations
     @staticmethod
-    def get_missing_values_by_dimensions(dataframe: pd.DataFrame) -> pd.DataFrame:
+    def get_missing_values_by_dimensions(
+            dataframe: pd.DataFrame
+    ) -> pd.DataFrame:
         return pd.DataFrame(
             dataframe.isna().sum(),
             columns=['MISSING_VALUES']
