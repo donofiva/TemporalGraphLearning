@@ -12,3 +12,17 @@ class MultiOutputLinearRegression(MultiOutputRegressor):
                 n_jobs=n_jobs
             )
         )
+
+    def get_params(self, deep=True):
+        return self.estimator.get_params(deep=deep)
+
+    def set_params(self, **params):
+        return self.estimator.set_params(**params)
+
+    @property
+    def copy_X(self):
+        return self.estimator.copy_X
+
+    @copy_X.setter
+    def copy_X(self, value):
+        self.estimator.copy_X = value
