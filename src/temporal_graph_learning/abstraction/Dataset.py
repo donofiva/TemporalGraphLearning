@@ -31,3 +31,39 @@ class Dataset:
             (slice_entities, dataframe.reset_index(drop=True))
             for slice_entities, dataframe in slice_entities_to_dataframe
         ]
+
+    @staticmethod
+    def extend_with_shifted_dimension(
+            dataframe: pd.DataFrame,
+            dimension: str,
+            window_size: int
+    ) -> Tuple[List[str], pd.DataFrame]:
+
+        # Check if the dimension exists in the dataframe
+        if dimension not in dataframe.columns:
+            raise ValueError(f"Column '{dimension}' not found in the DataFrame.")
+
+        # Validate window_size is a positive integer
+        if not isinstance(window_size, int) or window_size < 1:
+            raise ValueError("window_size must be a positive integer.")
+
+        # Copy dataframe to preserve initial structure
+        dataframe = dataframe.copy()
+
+        # Create new columns buffer
+        columns = []
+
+        # Create future target columns
+        for i in range(1, window_size + 1):
+
+            # Define new column name
+            column = f'{dimension}_SHIFT_{i}'
+
+            # Store new column
+            columns.append(column)
+            dataframe[column] = dataframe[dimension].shift(-i)
+
+        # Remove invalid rows
+        dataframe = dataframe.dropna(ignore_index=True)
+
+        return columns, dataframe
