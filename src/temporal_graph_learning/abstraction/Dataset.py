@@ -19,7 +19,8 @@ class Dataset:
     def slice_on_dimensions(
             dataframe: pd.DataFrame,
             dimensions: List[str],
-            include_all: bool = False
+            include_all: bool = False,
+            drop_dimensions: bool = False
     ) -> List[Tuple[Any, pd.DataFrame]]:
 
         # Define dataframe slices
@@ -28,7 +29,10 @@ class Dataset:
 
         # Convert dataframe slices to datasets
         return [
-            (slice_entities, dataframe.reset_index(drop=True))
+            tuple(
+                slice_entities,
+                dataframe.drop(columns=dimensions if drop_dimensions else []).reset_index(drop=True)
+            )
             for slice_entities, dataframe in slice_entities_to_dataframe
         ]
 
