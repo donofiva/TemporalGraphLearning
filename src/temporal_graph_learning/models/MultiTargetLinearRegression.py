@@ -2,7 +2,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.multioutput import MultiOutputRegressor
 
 
-class MultiOutputLinearRegression(MultiOutputRegressor):
+class MultiTargetLinearRegression(MultiOutputRegressor):
 
     def __init__(self, *, fit_intercept: bool = True, copy_X: bool = True, n_jobs: int = None):
         super().__init__(
