@@ -63,7 +63,8 @@ class Dataset:
             columns.append(column)
             dataframe[column] = dataframe[dimension].shift(-i)
 
-        # Remove invalid rows
+        # Enforce final format
+        dataframe = dataframe.drop(columns=dimension)
         dataframe = dataframe.dropna(ignore_index=True)
 
         return columns, dataframe
