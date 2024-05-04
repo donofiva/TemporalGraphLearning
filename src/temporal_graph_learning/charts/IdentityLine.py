@@ -1,7 +1,7 @@
 from temporal_graph_learning.charts.Plot import Plot
 
 
-class Lineplot:
+class IdentityLine:
 
     def __init__(self):
         pass
