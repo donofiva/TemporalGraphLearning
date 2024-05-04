@@ -28,6 +28,9 @@ class Plot:
     def _toggle_border(self, border_position: Position, is_visible: bool):
         self._pointer.spines[border_position.value].set_visible(is_visible)
 
+    def _center_border(self, border_position: Position):
+        self._pointer.spines[border_position.value].set_position('center')
+
     def toggle_top_border(self, is_active: bool):
         self._toggle_border(Position.TOP, is_active)
 
@@ -43,6 +46,22 @@ class Plot:
     def toggle_top_and_right_border(self, is_active: bool):
         self.toggle_top_border(is_active)
         self.toggle_right_border(is_active)
+
+    def center_top_border(self):
+        self._center_border(Position.TOP)
+
+    def center_right_border(self):
+        self._center_border(Position.RIGHT)
+
+    def center_bottom_border(self):
+        self._center_border(Position.BOTTOM)
+
+    def center_left_border(self):
+        self._center_border(Position.LEFT)
+
+    def center_left_and_bottom_border(self):
+        self.center_left_border()
+        self.center_bottom_border()
 
     # Labels
     def set_x_axis_label(self, label: str):
