@@ -40,7 +40,8 @@ class Dataset:
     def extend_with_shifted_dimension(
             dataframe: pd.DataFrame,
             dimension: str,
-            window_size: int
+            window_size: int,
+            exclude_current: bool = False
     ) -> Tuple[List[str], pd.DataFrame]:
 
         # Check if the dimension exists in the dataframe
@@ -58,7 +59,7 @@ class Dataset:
         columns = []
 
         # Create future target columns
-        for i in range(1, window_size + 1):
+        for i in range(exclude_current * 1, window_size + exclude_current * 1):
 
             # Define new column name
             column = f'{dimension}_SHIFT_{i}'
