@@ -91,5 +91,5 @@ class Plots:
         plt.show()
 
     @staticmethod
-    def save(destination: str):
-        plt.savefig(destination)
+    def save(destination: str, dpi: int = 100):
+        plt.savefig(destination, dpi=dpi)
