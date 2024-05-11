@@ -29,7 +29,7 @@ class Dataset:
 
         # Convert dataframe slices to datasets
         return [
-            tuple(
+            (
                 slice_entities,
                 dataframe.drop(columns=dimensions if drop_dimensions else []).reset_index(drop=True)
             )
