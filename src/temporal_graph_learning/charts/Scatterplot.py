@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 from typing import Union, List
 from temporal_graph_learning.charts.Plot import Plot

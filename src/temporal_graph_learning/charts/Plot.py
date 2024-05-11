@@ -5,9 +5,17 @@ from enum import Enum, unique
 
 
 @unique
+class LineStyle(Enum):
+
+    SOLID = '-'
+    DASHED = '--'
+
+
+@unique
 class Colors(Enum):
 
     LIGHT_GREY = '#eaeaea'
+    RED = 'red'
 
 
 @unique
