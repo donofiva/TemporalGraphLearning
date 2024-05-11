@@ -12,4 +12,4 @@ class HorizontalLine:
     def draw_on_plot(self, y: float, plot: Plot):
 
         # Draw scatterplot
-        plot.get_pointer().axhline(y, color=self._color, linestyle=self._line_style)
+        plot.get_pointer().axhline(y, color=self._color.value, linestyle=self._line_style.value)
