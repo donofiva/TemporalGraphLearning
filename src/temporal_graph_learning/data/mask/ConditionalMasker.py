@@ -44,8 +44,9 @@ class MaskingRule:
 
 class ConditionalMasker(BaseEstimator, TransformerMixin):
 
-    def __init__(self, masking_rules: List[MaskingRule] = None):
+    def __init__(self, masking_rules: List[MaskingRule] = None, masking_value: Any = np.nan):
         self._masking_rules = masking_rules or set()
+        self._masking_value = masking_value
 
     @staticmethod
     def _parse_masking_condition_dimensions(X, dimensions: Union[str, List[str]]):
@@ -83,6 +84,6 @@ class ConditionalMasker(BaseEstimator, TransformerMixin):
                 )
 
             # Apply the combined mask to the target column
-            X.loc[mask, self._parse_masking_condition_dimensions(X, masking_rule.dimensions)] = np.nan
+            X.loc[mask, self._parse_masking_condition_dimensions(X, masking_rule.dimensions)] = self._masking_value
 
         return X
