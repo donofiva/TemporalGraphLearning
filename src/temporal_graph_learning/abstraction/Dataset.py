@@ -1,6 +1,7 @@
+import numpy as np
 import pandas as pd
 
-from typing import List, Tuple, Any
+from typing import List, Tuple, Dict, Any
 
 
 class Dataset:
@@ -37,39 +38,87 @@ class Dataset:
         ]
 
     @staticmethod
-    def extend_with_shifted_dimension(
+    def extend_with_lagged_dimensions_values(
             dataframe: pd.DataFrame,
-            dimension: str,
-            window_size: int,
-            exclude_current: bool = False
+            dimensions: List[str],
+            lags: int,
+            dimension_to_fill_value: Dict = None
     ) -> Tuple[List[str], pd.DataFrame]:
 
         # Check if the dimension exists in the dataframe
-        if dimension not in dataframe.columns:
-            raise ValueError(f"Column '{dimension}' not found in the DataFrame.")
+        if set(dimensions).difference(dataframe.columns):
+            raise ValueError(f"Some dimensions not found in the DataFrame.")
 
         # Validate window_size is a positive integer
-        if not isinstance(window_size, int) or window_size < 1:
-            raise ValueError("window_size must be a positive integer.")
+        if not isinstance(lags, int) or lags < 1:
+            raise ValueError("Lags must be a positive integer.")
 
         # Copy dataframe to preserve initial structure
         dataframe = dataframe.copy()
 
         # Create new columns buffer
-        columns = []
+        lagged_columns = []
 
-        # Create future target columns
-        for i in range(exclude_current * 1, window_size + exclude_current * 1):
+        # Parse fill values map
+        if dimension_to_fill_value is None:
+            dimension_to_fill_value = {}
 
-            # Define new column name
-            column = f'{dimension}_SHIFT_{i}'
+        for dimension in dimensions:
 
-            # Store new column
-            columns.append(column)
-            dataframe[column] = dataframe[dimension].shift(-i)
+            # Retrieve fill value for the current dimension
+            fill_value = dimension_to_fill_value.get(dimension, np.nan)
 
-        # Enforce final format
-        dataframe = dataframe.drop(columns=dimension)
-        dataframe = dataframe.dropna(ignore_index=True)
+            # Store lagged dimensions
+            for lag in range(1, lags + 1):
 
-        return columns, dataframe
+                # Define and store new column
+                lagged_column = f"{dimension}_LAG_{lag}"
+                lagged_columns.append(lagged_column)
+
+                # Create new column
+                dataframe[lagged_column] = dataframe[dimension].shift(lag)
+                dataframe.loc[:lag - 1, lagged_column] = fill_value
+
+        return lagged_columns, dataframe
+
+    @staticmethod
+    def extend_with_leading_dimension_values(
+            dataframe: pd.DataFrame,
+            dimensions: List[str],
+            leads: int
+    ):
+
+        # Check if the dimension exists in the dataframe
+        if set(dimensions).difference(dataframe.columns):
+            raise ValueError(f"Some dimensions not found in the DataFrame.")
+
+        # Validate window_size is a positive integer
+        if not isinstance(leads, int) or leads < 0:
+            raise ValueError("Leads must be a non-negative integer.")
+
+        # Copy dataframe to preserve initial structure
+        dataframe = dataframe.copy()
+
+        # Create new columns buffer
+        leading_columns = []
+
+        # Store leading dimensions
+        for dimension in dimensions:
+
+            # Create future target columns
+            for lead in range(0, leads + 1):
+
+                # Define new column name
+                leading_column = f'{dimension}_LEAD_{lead}'
+                leading_columns.append(leading_column)
+
+                # Store new column
+                dataframe[leading_column] = dataframe[dimension].shift(-lead)
+
+            # Remove target dimension
+            dataframe = dataframe.drop(columns=dimension)
+
+        # Preserve only not-nan values
+        dataframe = dataframe[~dataframe[leading_columns].isna().any(axis=1)]
+
+        return leading_columns, dataframe
