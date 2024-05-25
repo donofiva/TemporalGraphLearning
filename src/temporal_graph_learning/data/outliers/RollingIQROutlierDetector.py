@@ -44,8 +44,17 @@ class RollingIQROutlierDetector(BaseEstimator, OutlierMixin):
         X = pd.Series(X)
 
         # Compute rolling quantiles
-        rolling_lower_quantile = X.rolling(window=self.window_size, center=self.center).quantile(self.lower_quantile)
-        rolling_upper_quantile = X.rolling(window=self.window_size, center=self.center).quantile(self.upper_quantile)
+        rolling_lower_quantile = X.rolling(
+            window=self.window_size,
+            center=self.center,
+            min_periods=1
+        ).quantile(self.lower_quantile)
+
+        rolling_upper_quantile = X.rolling(
+            window=self.window_size,
+            center=self.center,
+            min_periods=1
+        ).quantile(self.upper_quantile)
 
         # Compute IQR and bounds
         self._inter_quantile_range = rolling_upper_quantile - rolling_lower_quantile
