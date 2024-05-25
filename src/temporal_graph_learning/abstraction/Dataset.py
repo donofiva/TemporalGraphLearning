@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from typing import List, Tuple, Dict, Any
-
+from scipy.spatial.distance import pdist, squareform
 
 class Dataset:
 
@@ -36,6 +36,19 @@ class Dataset:
             )
             for slice_entities, dataframe in slice_entities_to_dataframe
         ]
+
+    @staticmethod
+    def compute_square_distance_matrix(dataframe: pd.DataFrame) -> np.ndarray:
+
+        # For now only Euclidean distance is supported
+
+        # Compute pairwise distances
+        pairwise_distances = pdist(dataframe.values, metric='euclidean')
+
+        # Reshape output in a squared matrix
+        distances_matrix = squareform(pairwise_distances)
+
+        return distances_matrix
 
     @staticmethod
     def extend_with_lagged_dimensions_values(
