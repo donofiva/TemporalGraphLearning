@@ -31,6 +31,9 @@ class RollingIQROutlierDetector(BaseEstimator, OutlierMixin):
         self._lower_bound = None
         self._upper_bound = None
 
+        # Sklearn interface
+        self.is_fitted_ = False
+
     def fit(self, X: Union[pd.Series, np.ndarray], y=None):
 
         # Ensure X is a DataFrame, otherwise raise an error
@@ -50,7 +53,7 @@ class RollingIQROutlierDetector(BaseEstimator, OutlierMixin):
         self._upper_bound = rolling_upper_quantile + self.width * self._inter_quantile_range
 
         # Flag estimator as fitted
-        super().is_fitted_ = True
+        self.is_fitted_ = True
 
         return self
 
