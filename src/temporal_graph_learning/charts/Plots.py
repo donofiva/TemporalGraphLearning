@@ -92,4 +92,4 @@ class Plots:
 
     @staticmethod
     def save(destination: str, dpi: int = 100, bbox_inches: str = None):
-        plt.savefig(destination, dpi=dpi, bbox_inches=box_inches)
+        plt.savefig(destination, dpi=dpi, bbox_inches=bbox_inches)
