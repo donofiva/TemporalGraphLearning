@@ -7,10 +7,11 @@ from temporal_graph_learning.charts.Plot import Plot
 
 class Lineplot:
 
-    def __init__(self, highlight_missing_values: bool = False):
+    def __init__(self, highlight_missing_values: bool = False, linewidth: float = None):
 
         # Store lineplot configuration
         self._highlight_missing_values = highlight_missing_values
+        self._linewidth = linewidth
 
     def draw_on_plot(self, datapoints: Union[pd.Series, List], plot: Plot):
 
@@ -19,7 +20,7 @@ class Lineplot:
         indices = np.arange(0, len(datapoints), 1)
 
         # Draw lineplot
-        plot.get_pointer().plot(indices, datapoints)
+        plot.get_pointer().plot(indices, datapoints, linewidth=self._linewidth)
 
         # Highlight missing values if required
         if self._highlight_missing_values:
