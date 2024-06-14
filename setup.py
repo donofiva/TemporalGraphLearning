@@ -12,9 +12,11 @@ setup(
         'numpy',
         'pandas',
         'scipy',
+        'scikit-learn',
         'statsmodels',
         'matplotlib',
         'seaborn',
-        'scikit-learn'
+        'scikit-learn',
+        'torch'
     ]
 )
