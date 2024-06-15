@@ -11,7 +11,7 @@ class DatasetParser:
     def __init__(self, dataset: pd.DataFrame, device: str = 'cpu'):
 
         # Store dataframe and replicate dataframe to store parsed dataset
-        self._dataset = dataset
+        self._dataset = dataset.copy()
         self._dataset_parsed = dataset.copy()
 
         # Store scaler references
@@ -62,7 +62,7 @@ class DatasetParser:
 
     # Scaler methods
     def scale_dimension(self, dimension: str, scaler: Scaler) -> Tuple[pd.DataFrame, Any]:
-        return scaler.scale_and_return_scaled_data_and_scaler(self.retrieve_dimensions_from_dataset_parsed([dimension]))
+        return scaler.initialize_scaler_and_scale_data(self.retrieve_dimensions_from_dataset_parsed([dimension]))
 
     def get_scaler_by_dimension(self, dimension: str):
         return self._dimension_to_scaler.get(dimension)
