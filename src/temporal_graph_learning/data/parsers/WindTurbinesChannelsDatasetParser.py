@@ -77,6 +77,12 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
             'PITCH_ANGLE_THIRD_BLADE'
         ])
 
+    def convert_masks_to_int(self):
+
+        # Convert and store masks
+        masks = self.convert_dimension('DATA_AVAILABLE', int)
+        self.store_dimension('DATA_AVAILABLE', masks)
+
     # PyTorch dataset methods
     def build_wind_turbine_channels_train_and_test_datasets(
             self,
