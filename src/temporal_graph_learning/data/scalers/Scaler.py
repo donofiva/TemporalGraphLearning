@@ -19,14 +19,22 @@ class Scaler(Enum):
         elif self == Scaler.STANDARD:
             return StandardScaler()
 
-    def scale_and_return_scaled_data_and_scaler(self, data: pd.DataFrame) -> Tuple[pd.DataFrame, Any]:
+    @staticmethod
+    def scale_data(data: pd.DataFrame, scaler) -> pd.DataFrame:
+
+        data_scaled = scaler.transform(data)
+        data_scaled = pd.DataFrame(data_scaled, columns=data.columns)
+
+        return data_scaled
+
+    def initialize_scaler_and_scale_data(self, data: pd.DataFrame) -> Tuple[pd.DataFrame, Any]:
 
         # Initialize scaler
         scaler = self.get_scaler()
+        scaler.fit(data)
 
         # Scale data
-        data_scaled = scaler.fit_transform(data)
-        data_scaled = pd.DataFrame(data_scaled, columns=data.columns)
+        data_scaled = self.scale_data(data, scaler)
 
         # Return scaled data and scaler
         return data_scaled, scaler
