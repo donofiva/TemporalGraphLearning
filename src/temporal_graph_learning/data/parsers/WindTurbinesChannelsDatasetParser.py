@@ -3,7 +3,6 @@ import pandas as pd
 
 from typing import List, Tuple, Dict, Hashable
 from sklearn.model_selection import train_test_split
-from temporal_graph_learning.data.scalers.Scaler import Scaler
 from temporal_graph_learning.data.parsers.DatasetParser import DatasetParser
 from temporal_graph_learning.data.datasets.WindTurbineChannelsDataset import WindTurbineChannelsDataset
 
@@ -55,7 +54,7 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         # Remove timeslot dimension
         self.drop_dimensions(['TIMESLOT'])
 
-    def aggregate_blades_pitch_angle(self):
+    def aggregate_and_transform_blades_pitch_angle(self):
 
         # Retrieve blade pitch angles
         blade_pitch_angles = self.retrieve_dimensions_from_dataset([
@@ -67,6 +66,10 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         # Aggregate blade pitch angles
         blade_pitch_angle_aggregated = blade_pitch_angles.mean(axis=1)
 
+        # Convert angle to radians and transform
+        blade_pitch_angle_aggregated = np.radians(blade_pitch_angle_aggregated)
+        blade_pitch_angle_aggregated = np.cos(blade_pitch_angle_aggregated)
+
         # Store aggregated blade pitch angle
         self.store_dimension('PITCH_ANGLE', blade_pitch_angle_aggregated)
 
@@ -77,6 +80,9 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
             'PITCH_ANGLE_THIRD_BLADE'
         ])
 
+    def transform_nacelle_direction(self):
+        pass
+
     def convert_masks_to_int(self):
 
         # Convert and store masks
@@ -84,6 +90,50 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         self.store_dimension('DATA_AVAILABLE', masks)
 
     # PyTorch dataset methods
+    def build_wind_turbine_channels_dataset(
+            self,
+            window: int = 1,
+            horizon: int = 1
+    ) -> WindTurbineChannelsDataset:
+
+        # Retrieve channels, mask and target
+        channels = WindTurbinesChannelsDatasetParser(
+            self.retrieve_dimensions_from_dataset_parsed([
+                    'WIND_SPEED',
+                    'WIND_DIRECTION',
+                    'EXTERNAL_TEMPERATURE',
+                    'INTERNAL_TEMPERATURE',
+                    'NACELLE_DIRECTION',
+                    'PITCH_ANGLE',
+                    'REACTIVE_POWER',
+                    'ACTIVE_POWER',
+                    'TIME_COS',
+                    'TIME_SIN',
+            ])
+        )
+
+        mask = WindTurbinesChannelsDatasetParser(
+            self.retrieve_dimensions_from_dataset_parsed([
+                'DATA_AVAILABLE'
+            ])
+        )
+
+        target = WindTurbinesChannelsDatasetParser(
+            self.retrieve_dimensions_from_dataset_parsed([
+                'ACTIVE_POWER'
+            ])
+        )
+
+        # Build dataset
+        return WindTurbineChannelsDataset(
+            channels=channels.to_tensor(),
+            masks=mask.to_tensor(),
+            targets=target.to_tensor(),
+            window=window,
+            horizon=horizon
+        )
+
+
     def build_wind_turbine_channels_train_and_test_datasets(
             self,
             test_size: float = 0.2,
@@ -117,10 +167,10 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         (
             channels_train,
             channels_test,
-            masks_train,
-            masks_test,
-            targets_train,
-            targets_test
+            mask_train,
+            mask_test,
+            target_train,
+            target_test
         ) = self.train_test_split(
             channels_dimensions, mask_dimensions, target_dimensions,
             test_size=test_size
@@ -129,16 +179,16 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         # Build datasets
         train_dataset = WindTurbineChannelsDataset(
             channels=channels_train.to_tensor(),
-            masks=masks_train.to_tensor(),
-            targets=targets_train.to_tensor(),
+            masks=mask_train.to_tensor(),
+            targets=target_train.to_tensor(),
             window=window,
             horizon=horizon
         )
 
         test_dataset = WindTurbineChannelsDataset(
             channels=channels_test.to_tensor(),
-            masks=masks_test.to_tensor(),
-            targets=targets_test.to_tensor(),
+            masks=mask_test.to_tensor(),
+            targets=target_test.to_tensor(),
             window=window,
             horizon=horizon
         )
