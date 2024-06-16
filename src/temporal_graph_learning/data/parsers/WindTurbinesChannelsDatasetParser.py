@@ -157,7 +157,6 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
             horizon=horizon
         )
 
-
     def build_wind_turbine_channels_train_and_test_datasets(
             self,
             test_size: float = 0.2,
