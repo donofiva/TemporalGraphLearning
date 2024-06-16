@@ -8,7 +8,7 @@ from temporal_graph_learning.data.scalers.Scaler import Scaler
 
 class DatasetParser:
 
-    def __init__(self, dataset: pd.DataFrame, device: str = 'cpu'):
+    def __init__(self, dataset: pd.DataFrame):
 
         # Store dataframe and replicate dataframe to store parsed dataset
         self._dataset = dataset.copy()
@@ -16,9 +16,6 @@ class DatasetParser:
 
         # Store scaler references
         self._dimension_to_scaler = {}
-
-        # PyTorch device configuration
-        self._device = device
 
     # Dataset methods
     def get_dataset(self) -> pd.DataFrame:
@@ -56,7 +53,7 @@ class DatasetParser:
 
     def split_on_dimension(self, dimensions: List[str]) -> Dict[Hashable, "DatasetParser"]:
         return {
-            dimensions: DatasetParser(dataset_slice.reset_index(drop=True), self._device)
+            dimensions: DatasetParser(dataset_slice.reset_index(drop=True))
             for dimensions, dataset_slice in self._dataset.groupby(dimensions, as_index=False)
         }
 
@@ -79,7 +76,7 @@ class DatasetParser:
             stratify=None
     ) -> Tuple["DatasetParser", ...]:
         return tuple(
-            DatasetParser(split, self._device)
+            DatasetParser(split)
             for split in train_test_split(
                 *[self.retrieve_dimensions_from_dataset_parsed(dimensions) for dimensions in dimensions_set],
                 test_size=test_size,
@@ -93,10 +90,10 @@ class DatasetParser:
         return torch.tensor(
             self._dataset_parsed.values,
             dtype=torch.float32,
-        ).to(self._device)
+        )
 
     def get_dimensions_from_dataset_parsed_as_tensor(self, dimensions: List[str]):
         return torch.tensor(
             self.retrieve_dimensions_from_dataset_parsed(dimensions).values,
             dtype=torch.float32
-        ).to(self._device)
+        )

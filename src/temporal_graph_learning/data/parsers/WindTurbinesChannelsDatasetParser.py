@@ -8,13 +8,13 @@ from temporal_graph_learning.data.datasets.WindTurbineChannelsDataset import Win
 
 class WindTurbinesChannelsDatasetParser(DatasetParser):
 
-    def __init__(self, dataset: pd.DataFrame, device: str = 'cpu'):
-        super().__init__(dataset, device)
+    def __init__(self, dataset: pd.DataFrame):
+        super().__init__(dataset)
 
     # Dataset methods
     def split_on_dimension(self, dimensions: List[str]) -> Dict[Hashable, "WindTurbinesChannelsDatasetParser"]:
         return {
-            dimensions: WindTurbinesChannelsDatasetParser(dataset_slice.reset_index(drop=True), self._device)
+            dimensions: WindTurbinesChannelsDatasetParser(dataset_slice.reset_index(drop=True))
             for dimensions, dataset_slice in self._dataset.groupby(dimensions, as_index=False)
         }
 
