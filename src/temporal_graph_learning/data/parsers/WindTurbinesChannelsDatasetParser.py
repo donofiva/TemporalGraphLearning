@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 
 from typing import List, Tuple, Dict, Hashable
-from sklearn.model_selection import train_test_split
 from temporal_graph_learning.data.parsers.DatasetParser import DatasetParser
 from temporal_graph_learning.data.datasets.WindTurbineChannelsDataset import WindTurbineChannelsDataset
 
@@ -25,14 +24,11 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
             *dimensions_set: List[str],
             test_size=0.2
     ) -> Tuple["DatasetParser", ...]:
-        return tuple(
-            WindTurbinesChannelsDatasetParser(split, self._device)
-            for split in train_test_split(
-                *[self.retrieve_dimensions_from_dataset_parsed(dimensions) for dimensions in dimensions_set],
-                test_size=test_size,
-                shuffle=False,
-                stratify=None
-            )
+        return super().train_test_split(
+            *dimensions_set,
+            test_size=test_size,
+            shuffle=False,
+            stratify=None
         )
 
     # Feature engineering methods
@@ -97,7 +93,7 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
     ) -> WindTurbineChannelsDataset:
 
         # Retrieve channels, mask and target
-        channels = WindTurbinesChannelsDatasetParser(
+        channels = DatasetParser(
             self.retrieve_dimensions_from_dataset_parsed([
                     'WIND_SPEED',
                     'WIND_DIRECTION',
@@ -112,13 +108,13 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
             ])
         )
 
-        mask = WindTurbinesChannelsDatasetParser(
+        mask = DatasetParser(
             self.retrieve_dimensions_from_dataset_parsed([
                 'DATA_AVAILABLE'
             ])
         )
 
-        target = WindTurbinesChannelsDatasetParser(
+        target = DatasetParser(
             self.retrieve_dimensions_from_dataset_parsed([
                 'ACTIVE_POWER'
             ])
