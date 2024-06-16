@@ -9,6 +9,7 @@ class WindTurbineChannelsDataset(Dataset):
             masks,
             targets,
             window: int,
+            lag: int,
             horizon: int
     ):
 
@@ -19,12 +20,14 @@ class WindTurbineChannelsDataset(Dataset):
 
         # Store input window and prediction horizon
         self._window = window
+        self._lag = lag
         self._horizon = horizon
 
     def __len__(self):
         return (
             self._channels.shape[0] -
             self._window -
+            self._lag -
             self._horizon +
             1
         )
@@ -33,6 +36,6 @@ class WindTurbineChannelsDataset(Dataset):
         return (
             self._channels[index:(index + self._window)],
             self._masks[index:(index + self._window)],
-            self._masks[(index + self._window):(index + self._window + self._horizon)],
-            self._targets[(index + self._window):(index + self._window + self._horizon)]
+            self._masks[(index + self._window + self._lag - 1):(index + self._window + self._lag - 1 + self._horizon)],
+            self._targets[(index + self._window + self._lag - 1):(index + self._window + self._lag - 1 + self._horizon)]
         )
