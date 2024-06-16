@@ -64,10 +64,10 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
 
         # Convert angle to radians and transform
         blade_pitch_angle_aggregated = np.radians(blade_pitch_angle_aggregated)
-        blade_pitch_angle_aggregated = np.cos(blade_pitch_angle_aggregated)
+        blade_pitch_angle_aggregated_cos = np.cos(blade_pitch_angle_aggregated)
 
         # Store aggregated blade pitch angle
-        self.store_dimension('PITCH_ANGLE', blade_pitch_angle_aggregated)
+        self.store_dimension('PITCH_ANGLE', blade_pitch_angle_aggregated_cos)
 
         # Remove blade pitch angles
         self.drop_dimensions([
@@ -76,8 +76,34 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
             'PITCH_ANGLE_THIRD_BLADE'
         ])
 
+    def transform_wind_direction(self):
+
+        # Retrieve wind direction
+        wind_direction = self.retrieve_dimension_from_dataset_parsed('WIND_DIRECTION')
+
+        # Convert angle to radians and transform
+        wind_direction = np.radians(wind_direction)
+        wind_direction_cos = np.cos(wind_direction)
+
+        # Store transformed wind direction
+        self.store_dimension('WIND_DIRECTION', wind_direction_cos)
+
     def transform_nacelle_direction(self):
-        pass
+
+        # Retrieve wind direction
+        nacelle_direction = self.retrieve_dimension_from_dataset_parsed('NACELLE_DIRECTION')
+
+        # Convert angle to radians and transform
+        nacelle_direction = np.radians(nacelle_direction)
+        nacelle_direction_cos = np.cos(nacelle_direction)
+        nacelle_direction_sin = np.sin(nacelle_direction)
+
+        # Store transformed nacelle direction
+        self.store_dimension('WIND_DIRECTION_COS', nacelle_direction_cos)
+        self.store_dimension('WIND_DIRECTION_SIN', nacelle_direction_sin)
+
+        # Drop nacelle direction
+        self.drop_dimensions(['NACELLE_DIRECTION'])
 
     def convert_masks_to_int(self):
 
@@ -89,6 +115,7 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
     def build_wind_turbine_channels_dataset(
             self,
             window: int = 1,
+            lag: int = 1,
             horizon: int = 1
     ) -> WindTurbineChannelsDataset:
 
@@ -126,6 +153,7 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
             masks=mask.to_tensor(),
             targets=target.to_tensor(),
             window=window,
+            lag=lag,
             horizon=horizon
         )
 
@@ -134,6 +162,7 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
             self,
             test_size: float = 0.2,
             window: int = 1,
+            lag: int = 1,
             horizon: int = 1
     ) -> Tuple[WindTurbineChannelsDataset, WindTurbineChannelsDataset]:
 
@@ -178,6 +207,7 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
             masks=mask_train.to_tensor(),
             targets=target_train.to_tensor(),
             window=window,
+            lag=lag,
             horizon=horizon
         )
 
@@ -186,6 +216,7 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
             masks=mask_test.to_tensor(),
             targets=target_test.to_tensor(),
             window=window,
+            lag=lag,
             horizon=horizon
         )
 
