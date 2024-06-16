@@ -67,7 +67,7 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         blade_pitch_angle_aggregated_cos = np.cos(blade_pitch_angle_aggregated)
 
         # Store aggregated blade pitch angle
-        self.store_dimension('PITCH_ANGLE', blade_pitch_angle_aggregated_cos)
+        self.store_dimension('PITCH_ANGLE_COS', blade_pitch_angle_aggregated_cos)
 
         # Remove blade pitch angles
         self.drop_dimensions([
@@ -86,7 +86,10 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         wind_direction_cos = np.cos(wind_direction)
 
         # Store transformed wind direction
-        self.store_dimension('WIND_DIRECTION', wind_direction_cos)
+        self.store_dimension('WIND_DIRECTION_COS', wind_direction_cos)
+
+        # Drop wind direction
+        self.drop_dimensions(['WIND_DIRECTION'])
 
     def transform_nacelle_direction(self):
 
@@ -99,8 +102,8 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         nacelle_direction_sin = np.sin(nacelle_direction)
 
         # Store transformed nacelle direction
-        self.store_dimension('WIND_DIRECTION_COS', nacelle_direction_cos)
-        self.store_dimension('WIND_DIRECTION_SIN', nacelle_direction_sin)
+        self.store_dimension('NACELLE_DIRECTION_COS', nacelle_direction_cos)
+        self.store_dimension('NACELLE_DIRECTION_SIN', nacelle_direction_sin)
 
         # Drop nacelle direction
         self.drop_dimensions(['NACELLE_DIRECTION'])
@@ -168,11 +171,12 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         # Define dimension sets
         channels_dimensions = [
             'WIND_SPEED',
-            'WIND_DIRECTION',
+            'WIND_DIRECTION_COS',
             'EXTERNAL_TEMPERATURE',
             'INTERNAL_TEMPERATURE',
-            'NACELLE_DIRECTION',
-            'PITCH_ANGLE',
+            'NACELLE_DIRECTION_COS',
+            'NACELLE_DIRECTION_SIN',
+            'PITCH_ANGLE_COS',
             'REACTIVE_POWER',
             'ACTIVE_POWER',
             'TIME_COS',
