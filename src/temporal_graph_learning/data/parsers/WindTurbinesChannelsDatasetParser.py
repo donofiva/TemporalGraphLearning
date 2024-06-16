@@ -32,7 +32,7 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         )
 
     # Feature engineering methods
-    def apply_cyclical_time_encoding(self):
+    def transform_timeslot(self):
 
         # Retrieve timeslots
         timeslots = self.retrieve_dimension_from_dataset('TIMESLOT')
