@@ -108,10 +108,12 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         # Drop nacelle direction
         self.drop_dimensions(['NACELLE_DIRECTION'])
 
-    def convert_masks_to_int(self):
+    def transform_masks(self):
 
-        # Convert and store masks
+        # Transform masks
         masks = self.convert_dimension('DATA_AVAILABLE', int)
+
+        # Store transformed masks
         self.store_dimension('DATA_AVAILABLE', masks)
 
     # PyTorch dataset methods
@@ -125,16 +127,16 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         # Retrieve channels, mask and target
         channels = DatasetParser(
             self.retrieve_dimensions_from_dataset_parsed([
-                    'WIND_SPEED',
-                    'WIND_DIRECTION',
-                    'EXTERNAL_TEMPERATURE',
-                    'INTERNAL_TEMPERATURE',
-                    'NACELLE_DIRECTION',
-                    'PITCH_ANGLE',
-                    'REACTIVE_POWER',
-                    'ACTIVE_POWER',
-                    'TIME_COS',
-                    'TIME_SIN',
+                'WIND_SPEED',
+                'WIND_DIRECTION',
+                'EXTERNAL_TEMPERATURE',
+                'INTERNAL_TEMPERATURE',
+                'NACELLE_DIRECTION',
+                'PITCH_ANGLE',
+                'REACTIVE_POWER',
+                'ACTIVE_POWER',
+                'TIME_COS',
+                'TIME_SIN',
             ])
         )
 
