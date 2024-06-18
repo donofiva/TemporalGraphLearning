@@ -41,7 +41,7 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         )
 
     # Feature engineering methods
-    def transform_timeslot(self):
+    def transform_timeslot(self, drop_dimensions: bool = True):
 
         # Retrieve timeslots
         timeslots = self.retrieve_dimension_from_dataset('TIMESLOT')
@@ -57,9 +57,10 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         self.store_dimension('TIME_COS', time_cos)
 
         # Remove timeslot dimension
-        self.drop_dimensions(['TIMESLOT'])
+        if drop_dimensions:
+            self.drop_dimensions(['TIMESLOT'])
 
-    def aggregate_and_transform_blades_pitch_angle(self):
+    def aggregate_and_transform_blades_pitch_angle(self, drop_dimensions: bool = True):
 
         # Retrieve blade pitch angles
         blade_pitch_angles = self.retrieve_dimensions_from_dataset([
@@ -79,13 +80,14 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         self.store_dimension('PITCH_ANGLE_COS', blade_pitch_angle_aggregated_cos)
 
         # Remove blade pitch angles
-        self.drop_dimensions([
-            'PITCH_ANGLE_FIRST_BLADE',
-            'PITCH_ANGLE_SECOND_BLADE',
-            'PITCH_ANGLE_THIRD_BLADE'
-        ])
+        if drop_dimensions:
+            self.drop_dimensions([
+                'PITCH_ANGLE_FIRST_BLADE',
+                'PITCH_ANGLE_SECOND_BLADE',
+                'PITCH_ANGLE_THIRD_BLADE'
+            ])
 
-    def transform_wind_direction(self):
+    def transform_wind_direction(self, drop_dimensions: bool = True):
 
         # Retrieve wind direction
         wind_direction = self.retrieve_dimension_from_dataset('WIND_DIRECTION')
@@ -98,9 +100,10 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         self.store_dimension('WIND_DIRECTION_COS', wind_direction_cos)
 
         # Drop wind direction
-        self.drop_dimensions(['WIND_DIRECTION'])
+        if drop_dimensions:
+            self.drop_dimensions(['WIND_DIRECTION'])
 
-    def transform_nacelle_direction(self):
+    def transform_nacelle_direction(self, drop_dimensions: bool = True):
 
         # Retrieve wind direction
         nacelle_direction = self.retrieve_dimension_from_dataset('NACELLE_DIRECTION')
@@ -115,7 +118,8 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         self.store_dimension('NACELLE_DIRECTION_SIN', nacelle_direction_sin)
 
         # Drop nacelle direction
-        self.drop_dimensions(['NACELLE_DIRECTION'])
+        if drop_dimensions:
+            self.drop_dimensions(['NACELLE_DIRECTION'])
 
     def transform_masks(self):
 
