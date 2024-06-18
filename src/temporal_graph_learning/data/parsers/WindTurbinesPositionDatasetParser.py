@@ -52,12 +52,11 @@ class WindTurbinesPositionDatasetParser(DatasetParser):
         elif isinstance(mask, pd.Series):
             mask = np.array(mask)
 
+        # Remove additional empty dimensions
+        mask = mask.squeeze()
+
         # Map unavailable nodes to high distance values
-        mask = np.where(
-            mask == 0,
-            np.inf,
-            1
-        )
+        mask = np.where(mask == 0, np.inf, 1)
 
         # Retrieve masked adjacency matrix
         euclidean_distance_matrix = self._euclidean_distance_matrix.copy()
@@ -75,19 +74,6 @@ class WindTurbinesPositionDatasetParser(DatasetParser):
         # Retrieve adjacency matrix by threshold
         return (euclidean_distance_matrix_masked <= distance_threshold).astype(int)
 
-
-# if __name__ == '__main__':
-#
-#     # Read dataset
-#     dataset = pd.read_csv('/Users/ivandonofrio/Workplace/Thesis/TemporalGraphLearning/assets/wind_turbines_position.csv')
-#
-#     # Initialize parser
-#     parser = WindTurbinesPositionDatasetParser(dataset)
-#     mask = np.ones(126)
-#
-#     import timeit
-#     print(timeit.timeit(lambda: parser.get_masked_adjacency_matrix_by_distance_threshold(mask, 1000), number=400000))
-#     print()
 
 
 
