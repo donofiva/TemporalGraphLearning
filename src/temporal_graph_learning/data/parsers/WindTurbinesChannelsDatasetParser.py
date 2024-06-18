@@ -8,11 +8,20 @@ from temporal_graph_learning.data.datasets.WindTurbineChannelsDataset import Win
 
 class WindTurbinesChannelsDatasetParser(DatasetParser):
 
+    @classmethod
+    def from_chunks(cls, *parsers: "WindTurbinesChannelsDatasetParser"):
+        return cls(
+            pd.concat(
+                list(map(lambda parser: parser.get_dataset(), parsers)),
+                ignore_index=True
+            )
+        )
+
     def __init__(self, dataset: pd.DataFrame):
         super().__init__(dataset)
 
     # Dataset methods
-    def split_on_dimension(self, dimensions: List[str]) -> Dict[Hashable, "WindTurbinesChannelsDatasetParser"]:
+    def split_on_dimensions(self, dimensions: List[str]) -> Dict[Hashable, "WindTurbinesChannelsDatasetParser"]:
         return {
             dimensions: WindTurbinesChannelsDatasetParser(dataset_slice.reset_index(drop=True))
             for dimensions, dataset_slice in self._dataset.groupby(dimensions, as_index=False)
@@ -79,7 +88,7 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
     def transform_wind_direction(self):
 
         # Retrieve wind direction
-        wind_direction = self.retrieve_dimension_from_dataset_parsed('WIND_DIRECTION')
+        wind_direction = self.retrieve_dimension_from_dataset('WIND_DIRECTION')
 
         # Convert angle to radians and transform
         wind_direction = np.radians(wind_direction)
@@ -94,7 +103,7 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
     def transform_nacelle_direction(self):
 
         # Retrieve wind direction
-        nacelle_direction = self.retrieve_dimension_from_dataset_parsed('NACELLE_DIRECTION')
+        nacelle_direction = self.retrieve_dimension_from_dataset('NACELLE_DIRECTION')
 
         # Convert angle to radians and transform
         nacelle_direction = np.radians(nacelle_direction)
@@ -126,7 +135,7 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
 
         # Retrieve channels, mask and target
         channels = DatasetParser(
-            self.retrieve_dimensions_from_dataset_parsed([
+            self.retrieve_dimensions_from_dataset([
                 'WIND_SPEED',
                 'WIND_DIRECTION',
                 'EXTERNAL_TEMPERATURE',
@@ -141,13 +150,13 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         )
 
         mask = DatasetParser(
-            self.retrieve_dimensions_from_dataset_parsed([
+            self.retrieve_dimensions_from_dataset([
                 'DATA_AVAILABLE'
             ])
         )
 
         target = DatasetParser(
-            self.retrieve_dimensions_from_dataset_parsed([
+            self.retrieve_dimensions_from_dataset([
                 'ACTIVE_POWER'
             ])
         )
