@@ -12,7 +12,7 @@ class DatasetParser:
 
         # Store dataframe and replicate dataframe to store parsed dataset
         self._dataset = dataset.copy()
-        self._dataset_parsed = dataset.copy()
+        self._dataset_backup = dataset.copy()
 
         # Store scaler references
         self._dimension_to_scaler = {}
@@ -21,14 +21,8 @@ class DatasetParser:
     def get_dataset(self) -> pd.DataFrame:
         return self._dataset
 
-    def get_dataset_parsed(self) -> pd.DataFrame:
-        return self._dataset_parsed
-
     def get_dataset_dimensions(self) -> List[str]:
-        return [dimension for dimension in self._dataset.columns]
-
-    def get_dataset_parsed_dimensions(self) -> List[str]:
-        return [dimension for dimension in self._dataset_parsed.columns]
+        return list(self._dataset.columns)
 
     def retrieve_dimension_from_dataset(self, dimension: str) -> pd.Series:
         return self._dataset[dimension]
@@ -36,22 +30,16 @@ class DatasetParser:
     def retrieve_dimensions_from_dataset(self, dimensions: List[str]) -> pd.DataFrame:
         return self._dataset[dimensions]
 
-    def retrieve_dimension_from_dataset_parsed(self, dimension: str) -> pd.Series:
-        return self._dataset_parsed[dimension]
-
-    def retrieve_dimensions_from_dataset_parsed(self, dimensions: List[str]) -> pd.DataFrame:
-        return self._dataset_parsed[dimensions]
-
     def drop_dimensions(self, dimensions: List[str]):
-        self._dataset_parsed.drop(columns=dimensions, inplace=True)
+        self._dataset.drop(columns=dimensions, inplace=True)
 
     def convert_dimension(self, dimension: str, dtype) -> pd.Series:
-        return self.retrieve_dimension_from_dataset_parsed(dimension).astype(dtype=dtype)
+        return self.retrieve_dimension_from_dataset(dimension).astype(dtype=dtype)
 
     def store_dimension(self, dimension: str, data: Union[pd.Series, pd.DataFrame]):
-        self._dataset_parsed[dimension] = data
+        self._dataset[dimension] = data
 
-    def split_on_dimension(self, dimensions: List[str]) -> Dict[Hashable, "DatasetParser"]:
+    def split_on_dimensions(self, dimensions: List[str]) -> Dict[Hashable, "DatasetParser"]:
         return {
             dimensions: DatasetParser(dataset_slice.reset_index(drop=True))
             for dimensions, dataset_slice in self._dataset.groupby(dimensions, as_index=False)
@@ -59,7 +47,7 @@ class DatasetParser:
 
     # Scaler methods
     def scale_dimension(self, dimension: str, scaler: Scaler) -> Tuple[pd.DataFrame, Any]:
-        return scaler.initialize_scaler_and_scale_data(self.retrieve_dimensions_from_dataset_parsed([dimension]))
+        return scaler.initialize_scaler_and_scale_data(self.retrieve_dimensions_from_dataset([dimension]))
 
     def get_scaler_by_dimension(self, dimension: str):
         return self._dimension_to_scaler.get(dimension)
@@ -78,7 +66,7 @@ class DatasetParser:
         return tuple(
             DatasetParser(split)
             for split in train_test_split(
-                *[self.retrieve_dimensions_from_dataset_parsed(dimensions) for dimensions in dimensions_set],
+                *[self.retrieve_dimensions_from_dataset(dimensions) for dimensions in dimensions_set],
                 test_size=test_size,
                 shuffle=shuffle,
                 stratify=stratify
@@ -88,12 +76,12 @@ class DatasetParser:
     # Tensor methods
     def to_tensor(self):
         return torch.tensor(
-            self._dataset_parsed.values,
+            self._dataset.values,
             dtype=torch.float32,
         )
 
     def get_dimensions_from_dataset_parsed_as_tensor(self, dimensions: List[str]):
         return torch.tensor(
-            self.retrieve_dimensions_from_dataset_parsed(dimensions).values,
+            self.retrieve_dimensions_from_dataset(dimensions).values,
             dtype=torch.float32
         )
