@@ -68,21 +68,21 @@ class WindTurbinesPositionParser(TabularDatasetParser):
 
         return physical_distance_matrix
 
-    def _build_cosine_distance_matrix(self, channels: np.ndarray) -> np.ndarray:
+    def _build_cosine_distance_matrix(self, channels_series: np.ndarray) -> np.ndarray:
 
         # Enforce channels dimensions
-        if channels.ndim < 2 or channels.ndim > 3:
+        if channels_series.ndim < 2 or channels_series.ndim > 3:
             raise Exception("Incompatible channel dimensions")
 
         # Flatten channels
-        channels_flattened = channels.reshape(channels.shape[0], -1).astype(float)
+        channels_series_flattened = channels_series.reshape(channels_series.shape[0], -1).astype(float)
 
         # Remove missing values
-        missing_values = np.isnan(channels_flattened).any(axis=0)
-        channels_flattened = channels_flattened[:, ~missing_values]
+        missing_values = np.isnan(channels_series_flattened).any(axis=0)
+        channels_series_flattened = channels_series_flattened[:, ~missing_values]
 
         # Compute cosine distance matrix
-        cosine_distance_matrix = 1 - cosine_similarity(channels_flattened)
+        cosine_distance_matrix = 1 - cosine_similarity(channels_series_flattened)
 
         # Disable self-loops if required
         if not self._enable_self_loops:
@@ -94,14 +94,14 @@ class WindTurbinesPositionParser(TabularDatasetParser):
     def build_distance_matrix(
             self,
             connectivity_type: ConnectivityType,
-            channels: np.ndarray
+            channels_series: np.ndarray
     ) -> np.ndarray:
 
         if connectivity_type == ConnectivityType.PHYSICAL_DISTANCE:
             distance_matrix = self._build_physical_distance_matrix()
 
         elif connectivity_type == ConnectivityType.COSINE_DISTANCE:
-            distance_matrix = self._build_cosine_distance_matrix(channels=channels)
+            distance_matrix = self._build_cosine_distance_matrix(channels_series=channels_series)
 
         else:
             raise Exception("Unknown connectivity type")
