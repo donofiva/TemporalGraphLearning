@@ -1,3 +1,4 @@
+from torch import Tensor
 from torch.utils.data import Dataset
 
 
@@ -5,9 +6,9 @@ class WindTurbineChannelsDataset(Dataset):
 
     def __init__(
             self,
-            channels,
-            masks,
-            targets,
+            channels: Tensor,
+            masks: Tensor,
+            targets: Tensor,
             window: int,
             lag: int,
             horizon: int
