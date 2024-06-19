@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from typing import Tuple
+from typing import List, Tuple
 from sklearn.model_selection import train_test_split
 from temporal_graph_learning.data.scalers.Scaler import Scaler
 from temporal_graph_learning.data.parsers.WindTurbinesChannelsParser import WindTurbinesChannelsParser
@@ -41,6 +41,23 @@ class WindTurbinesPositionChannelsParser:
         self._parser_channels = parser_channels
 
     # Dataset methods
+    def build_wind_turbines_channels_series(self, channels_excluded: List[str]) -> np.ndarray:
+
+        # Build channels series
+        wind_turbines_channels_series = np.array([
+            parser_channels_split.get_dataset().values
+            for _, parser_channels_split in self._parser_channels.split_on_dimensions(['TURBINE']).items()
+            for _ in [parser_channels_split.drop_dimensions(channels_excluded)]
+        ])
+
+        # Reshape and convert channels series
+        wind_turbines_channels_series = wind_turbines_channels_series.reshape(
+            wind_turbines_channels_series.shape[0],
+            -1
+        ).astype(float)
+
+        return wind_turbines_channels_series.astype(float)
+
     def build_and_get_wind_turbines_connectivity_matrices(
             self,
             connectivity_type: ConnectivityType,
