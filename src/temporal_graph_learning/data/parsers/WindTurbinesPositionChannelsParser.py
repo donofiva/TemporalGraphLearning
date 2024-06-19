@@ -4,7 +4,6 @@ import torch
 
 from typing import List, Tuple
 from sklearn.model_selection import train_test_split
-from temporal_graph_learning.data.scalers.Scaler import Scaler
 from temporal_graph_learning.data.parsers.WindTurbinesChannelsParser import WindTurbinesChannelsParser
 from temporal_graph_learning.data.parsers.WindTurbinesPositionParser import WindTurbinesPositionParser, ConnectivityType
 from temporal_graph_learning.data.datasets.WindTurbinesConnectivityChannelsDataset import WindTurbinesConnectivityChannelsDataset
