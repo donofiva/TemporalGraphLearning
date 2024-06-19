@@ -2,14 +2,14 @@ import numpy as np
 import pandas as pd
 
 from typing import List, Tuple, Dict, Hashable
-from temporal_graph_learning.data.parsers.DatasetParser import DatasetParser
+from temporal_graph_learning.data.parsers.TabularDatasetParser import TabularDatasetParser
 from temporal_graph_learning.data.datasets.WindTurbineChannelsDataset import WindTurbineChannelsDataset
 
 
-class WindTurbinesChannelsDatasetParser(DatasetParser):
+class WindTurbinesChannelsParser(TabularDatasetParser):
 
     @classmethod
-    def from_chunks(cls, *parsers: "WindTurbinesChannelsDatasetParser"):
+    def from_chunks(cls, *parsers: "WindTurbinesChannelsParser"):
         return cls(
             pd.concat(
                 list(map(lambda parser: parser.get_dataset(), parsers)),
@@ -21,9 +21,9 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
         super().__init__(dataset)
 
     # Dataset methods
-    def split_on_dimensions(self, dimensions: List[str]) -> Dict[Hashable, "WindTurbinesChannelsDatasetParser"]:
+    def split_on_dimensions(self, dimensions: List[str]) -> Dict[Hashable, "WindTurbinesChannelsParser"]:
         return {
-            dimensions: WindTurbinesChannelsDatasetParser(dataset_slice.reset_index(drop=True))
+            dimensions: WindTurbinesChannelsParser(dataset_slice.reset_index(drop=True))
             for dimensions, dataset_slice in self._dataset.groupby(dimensions, as_index=False)
         }
 
@@ -32,7 +32,7 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
             self,
             *dimensions_set: List[str],
             test_size=0.2
-    ) -> Tuple["DatasetParser", ...]:
+    ) -> Tuple["TabularDatasetParser", ...]:
         return super().train_test_split(
             *dimensions_set,
             test_size=test_size,
@@ -138,7 +138,7 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
     ) -> WindTurbineChannelsDataset:
 
         # Retrieve channels, mask and target
-        channels = DatasetParser(
+        channels = TabularDatasetParser(
             self.retrieve_dimensions_from_dataset([
                 'WIND_SPEED',
                 'WIND_DIRECTION',
@@ -153,13 +153,13 @@ class WindTurbinesChannelsDatasetParser(DatasetParser):
             ])
         )
 
-        mask = DatasetParser(
+        mask = TabularDatasetParser(
             self.retrieve_dimensions_from_dataset([
                 'DATA_AVAILABLE'
             ])
         )
 
-        target = DatasetParser(
+        target = TabularDatasetParser(
             self.retrieve_dimensions_from_dataset([
                 'ACTIVE_POWER'
             ])

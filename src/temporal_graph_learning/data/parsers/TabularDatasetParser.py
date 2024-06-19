@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from temporal_graph_learning.data.scalers.Scaler import Scaler
 
 
-class DatasetParser:
+class TabularDatasetParser:
 
     def __init__(self, dataset: pd.DataFrame):
 
@@ -39,9 +39,9 @@ class DatasetParser:
     def store_dimension(self, dimension: str, data: Union[pd.Series, pd.DataFrame]):
         self._dataset[dimension] = data
 
-    def split_on_dimensions(self, dimensions: List[str]) -> Dict[Hashable, "DatasetParser"]:
+    def split_on_dimensions(self, dimensions: List[str]) -> Dict[Hashable, "TabularDatasetParser"]:
         return {
-            dimensions: DatasetParser(dataset_slice.reset_index(drop=True))
+            dimensions: TabularDatasetParser(dataset_slice.reset_index(drop=True))
             for dimensions, dataset_slice in self._dataset.groupby(dimensions, as_index=False)
         }
 
@@ -62,9 +62,9 @@ class DatasetParser:
             test_size=0.2,
             shuffle=False,
             stratify=None
-    ) -> Tuple["DatasetParser", ...]:
+    ) -> Tuple["TabularDatasetParser", ...]:
         return tuple(
-            DatasetParser(split)
+            TabularDatasetParser(split)
             for split in train_test_split(
                 *[self.retrieve_dimensions_from_dataset(dimensions) for dimensions in dimensions_set],
                 test_size=test_size,

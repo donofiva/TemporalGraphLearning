@@ -3,62 +3,77 @@ import pandas as pd
 import torch
 
 from temporal_graph_learning.data.scalers.Scaler import Scaler
-from temporal_graph_learning.data.parsers.WindTurbinesChannelsDatasetParser import WindTurbinesChannelsDatasetParser
-from temporal_graph_learning.data.parsers.WindTurbinesPositionDatasetParser import WindTurbinesPositionDatasetParser
+from temporal_graph_learning.data.parsers.WindTurbinesChannelsParser import WindTurbinesChannelsParser
+from temporal_graph_learning.data.parsers.WindTurbinesPositionParser import WindTurbinesPositionParser, ConnectivityType
 from temporal_graph_learning.data.datasets.WindTurbinesChannelsConnectivityDataset import WindTurbineChannelsPositionDataset
 
 
-class WindTurbinesPositionChannelsDatasetParser:
+class WindTurbinesPositionChannelsParser:
 
     def __init__(
             self,
             dataset_channels: pd.DataFrame,
             dataset_position: pd.DataFrame,
-            mask_channels: bool = True,
+            enable_mask: bool = False,
             self_loops: bool = False
     ):
 
         # Initialize parsers
-        self._parser_channels = WindTurbinesChannelsDatasetParser(dataset_channels)
-        self._parser_position = WindTurbinesPositionDatasetParser(dataset_position, self_loops=self_loops)
+        self._parser_channels = WindTurbinesChannelsParser(
+            dataset=dataset_channels
+        )
 
-        # Store configuration
-        self._mask_channels = mask_channels
+        self._parser_position = WindTurbinesPositionParser(
+            dataset=dataset_position,
+            enable_mask=enable_mask,
+            enable_self_loops=self_loops
+        )
 
-    def get_parser_channels(self) -> WindTurbinesChannelsDatasetParser:
+    def get_parser_channels(self) -> WindTurbinesChannelsParser:
         return self._parser_channels
 
-    def get_parser_position(self) -> WindTurbinesPositionDatasetParser:
+    def get_parser_position(self) -> WindTurbinesPositionParser:
         return self._parser_position
 
-    def store_parser_channels(self, parser_channels: WindTurbinesChannelsDatasetParser):
+    def store_parser_channels(self, parser_channels: WindTurbinesChannelsParser):
         self._parser_channels = parser_channels
 
     # Dataset methods
-    def get_adjacency_matrices(self) -> np.ndarray:
+    def build_and_get_connectivity_matrices(
+            self,
+            connectivity_type: ConnectivityType,
+            threshold: float,
+            channels: np.ndarray
+    ) -> np.ndarray:
 
         # Initialize adjacency matrices buffer
-        adjacency_matrices = []
+        connectivity_matrices = []
+
+        # Build distance matrix
+        distance_matrix = self._parser_position.build_distance_matrix(
+            connectivity_type=connectivity_type,
+            channels=channels
+        )
 
         # Split dataset by day and timeslot to retrieve adjacency matrices
         for _, parser_channels_split in self._parser_channels.split_on_dimensions(['DAY', 'TIMESLOT']).items():
 
             # Define mask
             mask = parser_channels_split.retrieve_dimensions_from_dataset(['DATA_AVAILABLE'])
-            mask = mask if self._mask_channels else np.ones_like(mask.values)
 
             # Retrieve adjacency matrix
-            adjacency_matrix = self._parser_position.get_masked_adjacency_matrix_from_euclidean_distance_matrix_by_threshold(
+            connectivity_matrix = self._parser_position.build_connectivity_matrix(
+                distance_matrix=distance_matrix,
                 mask=mask,
-                distance_threshold=2000
+                threshold=threshold
             )
 
             # Store adjacency matrix
-            adjacency_matrices.append(adjacency_matrix)
+            connectivity_matrices.append(connectivity_matrix)
 
-        return np.array(adjacency_matrices)
+        return np.array(connectivity_matrices)
 
-    def get_wind_turbines_channels_grid(self) -> np.ndarray:
+    def build_and_get_wind_turbines_channels_grid(self) -> np.ndarray:
 
         # Initialize channels grid buffer
         channels_grids = []
@@ -114,7 +129,7 @@ if __name__ == '__main__':
     dataset_position = pd.read_csv(f'{folder}/wind_turbines_position.csv')
 
     # Initialize parser
-    parser = WindTurbinesPositionChannelsDatasetParser(
+    parser = WindTurbinesPositionChannelsParser(
         dataset_channels,
         dataset_position,
     )
@@ -143,7 +158,6 @@ if __name__ == '__main__':
         parser_channels_split.transform_wind_direction()
         parser_channels_split.transform_nacelle_direction()
         parser_channels_split.transform_masks()
-        parser_channels_split
 
         # Scale data
         for dimension_to_scale in dimensions_to_scale:
@@ -161,10 +175,24 @@ if __name__ == '__main__':
             wind_turbine_to_channel_to_scaler.setdefault(wind_turbine, {}).setdefault(dimension_to_scale, scaler)
 
     # Generate new channels parser from scaled features
-    parser_channels = WindTurbinesChannelsDatasetParser.from_chunks(*wind_turbine_to_parser_channels.values())
+    parser_channels = WindTurbinesChannelsParser.from_chunks(*wind_turbine_to_parser_channels.values())
+
+    # Generate wind turbine channels array
+    channels = np.array([
+        parser_channels_split.get_dataset().values
+        for _, parser_channels_split in wind_turbine_to_parser_channels.items()
+        for _ in [parser_channels_split.drop_dimensions(['TURBINE', 'DAY', 'TIMESLOT', 'ACTIVE_POWER'])]
+    ])
 
     # Store
     parser.store_parser_channels(parser_channels)
+
+    connectivity_matrices = parser.build_and_get_connectivity_matrices(
+        ConnectivityType.PHYSICAL_DISTANCE,
+        threshold=2000,
+        channels=channels
+    )
+
     parser.prova()
 
     # parser.prova()
