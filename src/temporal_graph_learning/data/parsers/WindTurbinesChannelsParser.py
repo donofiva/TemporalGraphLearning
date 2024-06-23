@@ -82,6 +82,14 @@ class WindTurbinesChannelsParser(TabularDatasetParser):
         if drop_dimensions:
             self.drop_dimensions(['NACELLE_DIRECTION'])
 
+    def transform_masks(self):
+
+        # Transform masks
+        masks = self.convert_dimension('DATA_AVAILABLE', int)
+
+        # Store transformed masks
+        self.store_dimension('DATA_AVAILABLE', masks)
+
     # Dataset methods
     @staticmethod
     def _set_datetime_index(dataset: pd.DataFrame) -> pd.DataFrame:
