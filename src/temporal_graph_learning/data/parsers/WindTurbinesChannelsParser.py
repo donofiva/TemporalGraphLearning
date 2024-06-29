@@ -125,12 +125,12 @@ class WindTurbinesChannelsParser(TabularDatasetParser):
 
         return dataset
 
-    def get_target_mask_and_channels(
+    def get_targets_masks_and_channels(
             self,
-            target_labels: List[str] = ['ACTIVE_POWER'],
-            mask_label: str = 'DATA_AVAILABLE',
-            preserve_mask_as_channel: bool = True,
-            preserve_target_as_channel: bool = True,
+            targets_labels: List[str] = ['ACTIVE_POWER'],
+            masks_label: str = 'DATA_AVAILABLE',
+            preserve_masks_as_channel: bool = True,
+            preserve_targets_as_channel: bool = True,
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
         # Preserve dataset
@@ -143,13 +143,13 @@ class WindTurbinesChannelsParser(TabularDatasetParser):
         # Retrieve channels labels
         channels_drop = (
                 [] +
-                ([] if preserve_mask_as_channel else [mask_label]) +
-                ([] if preserve_target_as_channel else target_labels)
+                ([] if preserve_masks_as_channel else [masks_label]) +
+                ([] if preserve_targets_as_channel else targets_labels)
         )
 
         return (
-            channels.loc[:, pd.IndexSlice[:, target_labels]],
-            channels.loc[:, pd.IndexSlice[:, [mask_label]]],
+            channels.loc[:, pd.IndexSlice[:, targets_labels]],
+            channels.loc[:, pd.IndexSlice[:, [masks_label]]],
             channels.drop(columns=channels.loc[:, pd.IndexSlice[:, channels_drop]].columns)
         )
 
