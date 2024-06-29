@@ -95,7 +95,7 @@ class WindTurbinesChannelsParser(TabularDatasetParser):
     def _set_datetime_index(dataset: pd.DataFrame) -> pd.DataFrame:
 
         # Define dummy start date
-        start_date = '2024-01-01'
+        start_date = '2023-12-31'
 
         # Convert day and timeslot to datetime
         dataset['DATETIME'] = (
