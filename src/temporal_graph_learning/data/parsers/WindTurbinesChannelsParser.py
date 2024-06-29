@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from typing import List, Tuple, Dict, Hashable
+from typing import List, Tuple
 from temporal_graph_learning.data.parsers.TabularDatasetParser import TabularDatasetParser
-from temporal_graph_learning.data.datasets.WindTurbineChannelsDataset import WindTurbineChannelsDataset
 
 
 class WindTurbinesChannelsParser(TabularDatasetParser):
@@ -130,7 +129,8 @@ class WindTurbinesChannelsParser(TabularDatasetParser):
             self,
             target_labels: List[str] = ['ACTIVE_POWER'],
             mask_label: str = 'DATA_AVAILABLE',
-            preserve_target_as_channel: bool = True
+            preserve_mask_as_channel: bool = True,
+            preserve_target_as_channel: bool = True,
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
         # Preserve dataset
@@ -141,11 +141,15 @@ class WindTurbinesChannelsParser(TabularDatasetParser):
         channels = self._set_wind_turbine_multi_index(channels)
 
         # Retrieve channels labels
-        channels_drop = [mask_label] + ([] if preserve_target_as_channel else target_labels)
+        channels_drop = (
+                [] +
+                ([] if preserve_mask_as_channel else [mask_label]) +
+                ([] if preserve_target_as_channel else target_labels)
+        )
 
         return (
             channels.loc[:, pd.IndexSlice[:, target_labels]],
-            channels.loc[:, pd.IndexSlice[:, mask_label]],
+            channels.loc[:, pd.IndexSlice[:, [mask_label]]],
             channels.drop(columns=channels.loc[:, pd.IndexSlice[:, channels_drop]].columns)
         )
 
@@ -157,4 +161,4 @@ if __name__ == '__main__':
     dataset_channels = pd.read_csv(f'{folder}/wind_turbines_channels.csv')
 
     parser = WindTurbinesChannelsParser(dataset_channels)
-    print(parser.get_target_mask_and_channels())
+    print(parser.get_target_mask_and_channels()[2].columns)
