@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.metrics import root_mean_squared_error
 
 
-class RRMSEWindTurbine:
+class RMSEWindTurbine:
 
     def __init__(self):
         pass
