@@ -115,7 +115,11 @@ class WindFarmEstimator:
         predictions = np.hstack(predictions)
 
         # Store predictions dataframe
-        return pd.DataFrame(predictions, columns=self._targets_test.columns)
+        return pd.DataFrame(
+            predictions,
+            index=self._targets_test.index,
+            columns=self._targets_test.columns
+        )
 
     def get_train_channels_masks_and_targets(self):
         return (
