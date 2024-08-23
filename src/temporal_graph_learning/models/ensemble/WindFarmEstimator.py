@@ -15,20 +15,24 @@ class WindFarmEstimator:
             masks: pd.DataFrame,
             targets: pd.DataFrame, estimator,
             test_size: float = 0.2,
-            shuffle_dataset: bool = False
+            shuffle_dataset: bool = False,
+            mask_predictions: bool = True
     ):
 
-        # Channels, masks and targets
+        # Store channels, masks and targets
         self._channels = channels
         self._masks = masks
         self._targets = targets
 
-        # Estimator template
+        # Store estimator template
         self._estimator = estimator
 
-        # Train test split configuration
+        # Store dataset split configuration
         self._test_size = test_size
         self._shuffle_dataset = shuffle_dataset
+
+        # Store masking logic configuration
+        self._mask_predictions = mask_predictions
 
         # Train and test split
         self._channels_train = None
@@ -83,6 +87,7 @@ class WindFarmEstimator:
 
         # Fit model for each wind turbine
         for wind_turbine in tqdm(self._wind_turbines):
+
             # Retrieve estimator and dataset slices on wind turbine
             estimator = self.get_estimator_by_wind_turbine(wind_turbine)
             channels, _, targets = self.get_train_channels_masks_and_targets_by_wind_turbine(wind_turbine)
@@ -97,20 +102,20 @@ class WindFarmEstimator:
 
         # Fit model for each wind turbine
         for wind_turbine in tqdm(self._wind_turbines):
+
             # Retrieve estimator and dataset slices on wind turbine
             estimator = self.get_estimator_by_wind_turbine(wind_turbine)
-            channels, _, _ = self.get_train_channels_masks_and_targets_by_wind_turbine(wind_turbine)
+            channels, _, _ = self.get_test_channels_masks_and_targets_by_wind_turbine(wind_turbine)
 
-            # TODO: Add here masking logic
-
-            # Train estimator
+            # Retrieve predictions from estimator
             prediction = estimator.predict(channels)
             predictions.append(prediction)
 
-        return pd.DataFrame(
-            np.hstack(predictions),
-            columns=self._targets_test.columns
-        )
+        # Store predictions
+        predictions = np.hstack(predictions)
+
+        # Store predictions dataframe
+        return pd.DataFrame(predictions, columns=self._targets_test.columns)
 
     def get_train_channels_masks_and_targets(self):
         return (
