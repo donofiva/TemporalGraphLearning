@@ -1,11 +1,9 @@
 import copy
-import numpy as np
 import pandas as pd
 
 from tqdm import tqdm
-from typing import List, Dict
+from typing import List, Dict, Optional
 from sklearn.model_selection import train_test_split
-
 from temporal_graph_learning.data.preprocessing.LagLeadDatasetPreprocessor import LagLeadDatasetPreprocessor
 
 
@@ -18,21 +16,16 @@ class WindFarmEstimator:
             targets: pd.DataFrame,
             lag_lead_preprocessor: LagLeadDatasetPreprocessor,
             scaler,
-            pca,
+            decomposer,
             estimator,
             test_size: float = 0.2,
             mask_predictions: bool = True
     ):
 
-        # Store channels, masks and targets
-        self._channels = channels
-        self._masks = masks
-        self._targets = targets
-
         # Store estimator template
         self._lag_lead_preprocessor = lag_lead_preprocessor
         self._scaler = scaler
-        self._pca = pca
+        self._decomposer = decomposer
         self._estimator = estimator
 
         # Store dataset split configuration
@@ -41,38 +34,43 @@ class WindFarmEstimator:
         # Store masking logic configuration
         self._mask_predictions = mask_predictions
 
-        # Train and test split
-        self._channels_train = None
-        self._channels_test = None
-        self._masks_train = None
-        self._masks_test = None
-        self._targets_train = None
-        self._targets_test = None
-
         # Wind turbines split
         self._wind_turbines: List[int] = []
-        self._wind_turbine_to_channels_scaler: Dict = {}
-        self._wind_turbine_to_targets_scaler: Dict = {}
-        self._wind_turbine_to_pca = {}
+        self._wind_turbine_to_scaler_channels: Dict = {}
+        self._wind_turbine_to_scaler_targets: Dict = {}
+        self._wind_turbine_to_decomposer = {}
         self._wind_turbine_to_estimator: Dict = {}
-        self._wind_turbine_to_train: Dict = {}
-        self._wind_turbine_to_test: Dict = {}
 
+        # Store dataset
+        self._channels: pd.DataFrame = channels
+        self._masks: pd.DataFrame = masks
+        self._targets: pd.DataFrame = targets
+
+        # Store train test split
+        self._channels_train: Optional[pd.DataFrame] = None
+        self._channels_test: Optional[pd.DataFrame] = None
+        self._masks_train: Optional[pd.DataFrame] = None
+        self._masks_test: Optional[pd.DataFrame] = None
+        self._targets_train: Optional[pd.DataFrame] = None
+        self._targets_test: Optional[pd.DataFrame] = None
+
+    # Replicating entities by wind turbine
     def _get_estimator(self):
         return copy.deepcopy(self._estimator)
 
     def _get_scaler(self):
         return copy.deepcopy(self._scaler)
 
-    def _get_pca(self):
-        return copy.deepcopy(self._pca)
+    def _get_decomposer(self):
+        return copy.deepcopy(self._decomposer)
 
+    # Scaler
     @staticmethod
-    def _initialize_scaling(df: pd.DataFrame, scaler):
+    def _initialize_scaler(df: pd.DataFrame, scaler):
         scaler.fit_transform(df)
 
     @staticmethod
-    def _apply_scaling(df: pd.DataFrame, scaler) -> pd.DataFrame:
+    def _scale(df: pd.DataFrame, scaler) -> pd.DataFrame:
         return pd.DataFrame(
             scaler.transform(df),
             index=df.index,
@@ -80,50 +78,34 @@ class WindFarmEstimator:
         )
 
     @staticmethod
-    def _inverse_scaling(df: pd.DataFrame, scaler) -> pd.DataFrame:
+    def _invert_scaling(df: pd.DataFrame, scaler) -> pd.DataFrame:
         return pd.DataFrame(
             scaler.inverse_transform(df),
             index=df.index,
             columns=df.columns
         )
 
+    # Decomposer
     @staticmethod
-    def _initialize_pca(df: pd.DataFrame, pca):
-        pca.fit(df)
+    def _initialize_decomposer(df: pd.DataFrame, decomposer):
+        decomposer.fit(df)
 
     @staticmethod
-    def _apply_pca(df: pd.DataFrame, pca) -> pd.DataFrame:
+    def _decompose(df: pd.DataFrame, decomposer) -> pd.DataFrame:
         return pd.DataFrame(
-            pca.transform(df),
+            decomposer.transform(df),
             index=df.index,
-            columns=[f'PC_{component}' for component in range(pca.n_components_)]
+            columns=pd.MultiIndex.from_product([
+                df.columns.get_level_values(0).unique(),
+                [f'PC_{component}' for component in range(decomposer.n_components_)]
+            ])
         )
 
-    def _load_train_test_split(self):
-        (
-            self._channels_train,
-            self._channels_test,
-            self._masks_train,
-            self._masks_test,
-            self._targets_train,
-            self._targets_test
-        ) = train_test_split(
-            self._channels,
-            self._masks,
-            self._targets,
-            test_size=self._test_size
-        )
-
-    def _load_wind_turbines(self):
+    # Initialize wind farm estimator
+    def _store_wind_turbines(self):
         self._wind_turbines = self._channels.columns.get_level_values(0).unique().tolist()
 
-    def _load_estimators(self):
-        self._wind_turbine_to_estimator = {
-            wind_turbine: self._get_estimator()
-            for wind_turbine in self._wind_turbines
-        }
-
-    def _load_scaler(self):
+    def _store_scaler_by_wind_turbine(self):
 
         self._wind_turbine_to_channels_scaler = {
             wind_turbine: self._get_scaler()
@@ -135,19 +117,43 @@ class WindFarmEstimator:
             for wind_turbine in self._wind_turbines
         }
 
-    def _load_pca(self):
-        self._wind_turbine_to_pca = {
-            wind_turbine: self._get_pca()
+    def _store_decomposer_by_wind_turbine(self):
+        self._wind_turbine_to_decomposer = {
+            wind_turbine: self._get_decomposer()
+            for wind_turbine in self._wind_turbines
+        }
+
+    def _store_estimators_by_wind_turbine(self):
+        self._wind_turbine_to_estimator = {
+            wind_turbine: self._get_estimator()
             for wind_turbine in self._wind_turbines
         }
 
     def initialize(self):
-        self._load_wind_turbines()
-        self._load_scaler()
-        self._load_pca()
-        self._load_estimators()
+        self._store_wind_turbines()
+        self._store_scaler_by_wind_turbine()
+        self._store_decomposer_by_wind_turbine()
+        self._store_estimators_by_wind_turbine()
+
+    # Apply scaling and decomposition
+    def _train_test_split(self, channels: pd.DataFrame, masks: pd.DataFrame, targets: pd.DataFrame):
+        return train_test_split(
+            channels,
+            masks,
+            targets,
+            test_size=self._test_size,
+            shuffle=False
+        )
 
     def apply_temporal_window_and_decomposition(self):
+
+        # Dataset chunks
+        channels_train_chunks = []
+        channels_test_chunks = []
+        masks_train_chunks = []
+        masks_test_chunks = []
+        targets_train_chunks = []
+        targets_test_chunks = []
 
         # For each wind turbine, extract temporal representation and apply decomposition
         for wind_turbine in tqdm(self._wind_turbines):
@@ -160,7 +166,7 @@ class WindFarmEstimator:
             # Apply lag lead transformation
             channels, masks, targets = self._lag_lead_preprocessor.transform(channels, masks, targets)
 
-            # Split dataset
+            # Perform train-test split
             (
                 channels_train,
                 channels_test,
@@ -168,37 +174,57 @@ class WindFarmEstimator:
                 masks_test,
                 targets_train,
                 targets_test
-            ) = train_test_split(
-                channels,
-                masks,
-                targets,
-                test_size=self._test_size,
-                shuffle=False
-            )
+            ) = self._train_test_split(channels, masks, targets)
 
-            # For each turbine, fit scaler and apply to train and test targets
-            channels_scaler = self._wind_turbine_to_channels_scaler[wind_turbine]
-            self._initialize_scaling(channels_train, channels_scaler)
-            channels_train = self._apply_scaling(channels_train, channels_scaler)
-            channels_test = self._apply_scaling(channels_test, channels_scaler)
+            # Retrieve scaler and decomposer
+            scaler_channels = self._wind_turbine_to_channels_scaler[wind_turbine]
+            scaler_targets = self._wind_turbine_to_targets_scaler[wind_turbine]
+            decomposer = self._wind_turbine_to_decomposer[wind_turbine]
 
-            # For each turbine, fit scaler to train targets
-            targets_scaler = self._wind_turbine_to_targets_scaler[wind_turbine]
-            self._initialize_scaling(targets_train, targets_scaler)
-            targets_train = self._apply_scaling(targets_train, targets_scaler)
+            # For each turbine, initialize channels scaler
+            self._initialize_scaler(channels_train, scaler_channels)
 
-            # If required, apply PCA
-            pca = self._wind_turbine_to_pca[wind_turbine]
+            # And scale train and test channels
+            channels_train = self._scale(channels_train, scaler_channels)
+            channels_test = self._scale(channels_test, scaler_channels)
 
-            if pca is not None:
+            # For each turbine, initialize targets scaler
+            self._initialize_scaler(targets_train, scaler_targets)
 
-                # For each turbine, fit PCA to train targets
-                self._initialize_pca(channels_train, self._wind_turbine_to_pca[wind_turbine])
-                channels_train = self._apply_pca(channels_train, self._wind_turbine_to_pca[wind_turbine])
-                channels_test = self._apply_pca(channels_test, self._wind_turbine_to_pca[wind_turbine])
+            # And scale train targets
+            targets_train = self._scale(targets_train, scaler_targets)
 
-            self._wind_turbine_to_train[wind_turbine] = (channels_train, masks_train, targets_train)
-            self._wind_turbine_to_test[wind_turbine] = (channels_test, masks_test, targets_test)
+            # Apply decomposition if required
+            if decomposer is not None:
+
+                # For each turbine, initialize decomposer
+                self._initialize_decomposer(channels_train, decomposer)
+
+                # And scale train and test channels
+                channels_train = self._decompose(channels_train, decomposer)
+                channels_test = self._decompose(channels_test, decomposer)
+
+            # Store chunks
+            channels_train_chunks.append(channels_train)
+            channels_test_chunks.append(channels_test)
+            masks_train_chunks.append(masks_train)
+            masks_test_chunks.append(masks_test)
+            targets_train_chunks.append(targets_train)
+            targets_test_chunks.append(targets_test)
+
+            # Free memory
+            del channels_train, channels_test, masks_train, masks_test, targets_train, targets_test
+
+        # Store split
+        self._channels_train = pd.concat(channels_train_chunks, axis=1)
+        self._channels_test = pd.concat(channels_test_chunks, axis=1)
+        self._masks_train = pd.concat(masks_train_chunks, axis=1)
+        self._masks_test = pd.concat(masks_test_chunks, axis=1)
+        self._targets_train = pd.concat(targets_train_chunks, axis=1)
+        self._targets_test = pd.concat(targets_test_chunks, axis=1)
+
+        # Free memory
+        del channels_train_chunks, channels_test_chunks, masks_train_chunks, masks_test_chunks, targets_train_chunks, targets_test_chunks
 
     def fit(self):
 
@@ -230,7 +256,7 @@ class WindFarmEstimator:
 
             # Inverse scaling
             scaler = self._wind_turbine_to_targets_scaler[wind_turbine]
-            prediction = self._inverse_scaling(prediction, scaler)
+            prediction = self._invert_scaling(prediction, scaler)
 
             # Store prediction
             predictions.append(prediction)
@@ -253,10 +279,18 @@ class WindFarmEstimator:
         )
 
     def get_train_channels_masks_and_targets_by_wind_turbine(self, wind_turbine: int):
-        return self._wind_turbine_to_train[wind_turbine]
+        return (
+            self._channels_train.loc[:, pd.IndexSlice[wind_turbine, :]],
+            self._masks_train.loc[:, pd.IndexSlice[wind_turbine, :]],
+            self._targets_train.loc[:, pd.IndexSlice[wind_turbine, :]]
+        )
 
     def get_test_channels_masks_and_targets_by_wind_turbine(self, wind_turbine: int):
-        return self._wind_turbine_to_test[wind_turbine]
+        return (
+            self._channels_test.loc[:, pd.IndexSlice[wind_turbine, :]],
+            self._masks_test.loc[:, pd.IndexSlice[wind_turbine, :]],
+            self._targets_test.loc[:, pd.IndexSlice[wind_turbine, :]]
+        )
 
     def get_estimator_by_wind_turbine(self, wind_turbine: int):
         return self._wind_turbine_to_estimator.get(wind_turbine)
