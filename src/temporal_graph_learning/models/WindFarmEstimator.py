@@ -61,6 +61,9 @@ class WindFarmEstimator:
         self._targets_train: Optional[pd.DataFrame] = None
         self._targets_test: Optional[pd.DataFrame] = None
 
+    def __del__(self):
+        del self._channels_train, self._channels_test, self._masks_train, self._masks_test, self._targets_train, self._targets_test
+
     # Replicating entities by wind turbine
     def _get_estimator(self):
         return copy.deepcopy(self._estimator)
