@@ -309,5 +309,5 @@ class WindFarmEstimator:
         os.makedirs(directory, exist_ok=True)
 
         # Store model
-        with open(f'directory/{self._label}.pickle', 'wb') as file:
+        with open(f'{directory}/{self._label}.pickle', 'wb') as file:
             pickle.dump(self, file)
