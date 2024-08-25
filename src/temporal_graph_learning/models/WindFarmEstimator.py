@@ -1,7 +1,10 @@
+import os
 import copy
+import pickle
 import pandas as pd
 
 from tqdm import tqdm
+from pathlib import Path
 from typing import List, Dict, Optional
 from sklearn.model_selection import train_test_split
 from temporal_graph_learning.data.preprocessing.LagLeadDatasetPreprocessor import LagLeadDatasetPreprocessor
@@ -19,7 +22,8 @@ class WindFarmEstimator:
             decomposer,
             estimator,
             test_size: float = 0.2,
-            mask_predictions: bool = True
+            mask_predictions: bool = True,
+            label: str = ''
     ):
 
         # Store estimator template
@@ -27,6 +31,9 @@ class WindFarmEstimator:
         self._scaler = scaler
         self._decomposer = decomposer
         self._estimator = estimator
+
+        # Store label
+        self._label = label
 
         # Store dataset split configuration
         self._test_size = test_size
@@ -294,3 +301,13 @@ class WindFarmEstimator:
 
     def get_estimator_by_wind_turbine(self, wind_turbine: int):
         return self._wind_turbine_to_estimator.get(wind_turbine)
+
+    # Pickle
+    def store(self, directory: str):
+
+        # Make directories
+        os.makedirs(directory, exist_ok=True)
+
+        # Store model
+        with open(f'directory/{self._label}.pickle', 'wb') as file:
+            pickle.dump(self, file)
