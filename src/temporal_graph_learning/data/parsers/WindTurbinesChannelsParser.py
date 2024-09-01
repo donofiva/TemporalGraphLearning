@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from typing import List, Tuple, Dict, Hashable
+from typing import List, Tuple
 from temporal_graph_learning.data.parsers.TabularDatasetParser import TabularDatasetParser
-from temporal_graph_learning.data.datasets.WindTurbineChannelsDataset import WindTurbineChannelsDataset
 
 
 class WindTurbinesChannelsParser(TabularDatasetParser):
@@ -20,46 +19,7 @@ class WindTurbinesChannelsParser(TabularDatasetParser):
     def __init__(self, dataset: pd.DataFrame):
         super().__init__(dataset)
 
-    # Dataset methods
-    def split_on_dimensions(self, dimensions: List[str]) -> Dict[Hashable, "WindTurbinesChannelsParser"]:
-        return {
-            dimensions: WindTurbinesChannelsParser(dataset_slice.reset_index(drop=True))
-            for dimensions, dataset_slice in self._dataset.groupby(dimensions, as_index=False)
-        }
-
-    # Split methods
-    def train_test_split(
-            self,
-            *dimensions_set: List[str],
-            test_size=0.2
-    ) -> Tuple["TabularDatasetParser", ...]:
-        return super().train_test_split(
-            *dimensions_set,
-            test_size=test_size,
-            shuffle=False,
-            stratify=None
-        )
-
     # Feature engineering methods
-    def transform_timeslot(self, drop_dimensions: bool = True):
-
-        # Retrieve timeslots
-        timeslots = self.retrieve_dimension_from_dataset('TIMESLOT')
-
-        # Apply cyclical encoding
-        minutes = timeslots.map(lambda ts: int(ts.split(':')[0]) * 60 + int(ts.split(':')[1]))
-        radians = minutes / 1440 * 2 * np.pi
-        time_sin = np.sin(radians)
-        time_cos = np.cos(radians)
-
-        # Store encoded dimensions
-        self.store_dimension('TIME_SIN', time_sin)
-        self.store_dimension('TIME_COS', time_cos)
-
-        # Remove timeslot dimension
-        if drop_dimensions:
-            self.drop_dimensions(['TIMESLOT'])
-
     def aggregate_and_transform_blades_pitch_angle(self, drop_dimensions: bool = True):
 
         # Retrieve blade pitch angles
@@ -129,113 +89,66 @@ class WindTurbinesChannelsParser(TabularDatasetParser):
         # Store transformed masks
         self.store_dimension('DATA_AVAILABLE', masks)
 
-    # PyTorch dataset methods
-    def build_wind_turbine_channels_dataset(
+    # Dataset methods
+    @staticmethod
+    def _set_datetime_index(dataset: pd.DataFrame) -> pd.DataFrame:
+
+        # Define dummy start date
+        start_date = '2023-12-31'
+
+        # Convert day and timeslot to datetime
+        dataset['DATETIME'] = (
+            pd.to_datetime(dataset['DAY'], unit='D', origin=pd.Timestamp(start_date)) +
+            pd.to_timedelta(dataset['TIMESLOT'].map(lambda t: f'{t}:00'))
+        )
+
+        # Remove day and timeslot columns
+        dataset = dataset.drop(columns=['DAY', 'TIMESLOT'])
+
+        # Set datetime index
+        dataset = dataset.set_index('DATETIME')
+
+        return dataset
+
+    @staticmethod
+    def _set_wind_turbine_multi_index(dataset: pd.DataFrame) -> pd.DataFrame:
+
+        # Add wind turbine to index
+        dataset = dataset.set_index('TURBINE', append=True)
+
+        # Move wind turbine index as column index
+        dataset = dataset.unstack('TURBINE')
+
+        # Enforce multi-index format
+        dataset.columns = dataset.columns.swaplevel(0, 1)
+        dataset = dataset.sort_index(axis=1, level=0)
+
+        return dataset
+
+    def get_targets_masks_and_channels(
             self,
-            window: int = 1,
-            lag: int = 1,
-            horizon: int = 1
-    ) -> WindTurbineChannelsDataset:
+            targets_labels: List[str] = ['ACTIVE_POWER'],
+            masks_label: str = 'DATA_AVAILABLE',
+            preserve_masks_as_channel: bool = True,
+            preserve_targets_as_channel: bool = True,
+    ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
-        # Retrieve channels, mask and target
-        channels = TabularDatasetParser(
-            self.retrieve_dimensions_from_dataset([
-                'WIND_SPEED',
-                'WIND_DIRECTION',
-                'EXTERNAL_TEMPERATURE',
-                'INTERNAL_TEMPERATURE',
-                'NACELLE_DIRECTION',
-                'PITCH_ANGLE',
-                'REACTIVE_POWER',
-                'ACTIVE_POWER',
-                'TIME_COS',
-                'TIME_SIN',
-            ])
+        # Preserve dataset
+        channels = self._dataset.copy()
+
+        # Set datetime index
+        channels = self._set_datetime_index(channels)
+        channels = self._set_wind_turbine_multi_index(channels)
+
+        # Retrieve channels labels
+        channels_drop = (
+                [] +
+                ([] if preserve_masks_as_channel else [masks_label]) +
+                ([] if preserve_targets_as_channel else targets_labels)
         )
 
-        mask = TabularDatasetParser(
-            self.retrieve_dimensions_from_dataset([
-                'DATA_AVAILABLE'
-            ])
+        return (
+            channels.loc[:, pd.IndexSlice[:, targets_labels]],
+            channels.loc[:, pd.IndexSlice[:, [masks_label]]],
+            channels.drop(columns=channels.loc[:, pd.IndexSlice[:, channels_drop]].columns)
         )
-
-        target = TabularDatasetParser(
-            self.retrieve_dimensions_from_dataset([
-                'ACTIVE_POWER'
-            ])
-        )
-
-        # Build dataset
-        return WindTurbineChannelsDataset(
-            channels=channels.to_tensor(),
-            masks=mask.to_tensor(),
-            targets=target.to_tensor(),
-            window=window,
-            lag=lag,
-            horizon=horizon
-        )
-
-    def build_wind_turbine_channels_train_and_test_datasets(
-            self,
-            test_size: float = 0.2,
-            window: int = 1,
-            lag: int = 1,
-            horizon: int = 1
-    ) -> Tuple[WindTurbineChannelsDataset, WindTurbineChannelsDataset]:
-
-        # Define dimension sets
-        channels_dimensions = [
-            'WIND_SPEED',
-            'WIND_DIRECTION_COS',
-            'EXTERNAL_TEMPERATURE',
-            'INTERNAL_TEMPERATURE',
-            'NACELLE_DIRECTION_COS',
-            'NACELLE_DIRECTION_SIN',
-            'PITCH_ANGLE_COS',
-            'REACTIVE_POWER',
-            'ACTIVE_POWER',
-            'TIME_COS',
-            'TIME_SIN',
-        ]
-
-        mask_dimensions = [
-            'DATA_AVAILABLE'
-        ]
-
-        target_dimensions = [
-            'ACTIVE_POWER'
-        ]
-
-        # Perform train test split
-        (
-            channels_train,
-            channels_test,
-            mask_train,
-            mask_test,
-            target_train,
-            target_test
-        ) = self.train_test_split(
-            channels_dimensions, mask_dimensions, target_dimensions,
-            test_size=test_size
-        )
-
-        # Build datasets
-        train_dataset = WindTurbineChannelsDataset(
-            channels=channels_train.to_tensor(),
-            masks=mask_train.to_tensor(),
-            targets=target_train.to_tensor(),
-            window=window,
-            lag=lag,
-            horizon=horizon
-        )
-
-        test_dataset = WindTurbineChannelsDataset(
-            channels=channels_test.to_tensor(),
-            masks=mask_test.to_tensor(),
-            targets=target_test.to_tensor(),
-            window=window,
-            lag=lag,
-            horizon=horizon
-        )
-
-        return train_dataset, test_dataset

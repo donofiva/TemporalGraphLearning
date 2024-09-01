@@ -4,6 +4,7 @@ import pandas as pd
 from typing import List, Tuple, Dict, Any
 from scipy.spatial.distance import pdist, squareform
 
+
 class Dataset:
 
     # Transformations

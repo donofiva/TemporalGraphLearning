@@ -1,9 +1,5 @@
-import torch
 import pandas as pd
-
-from typing import List, Tuple, Dict, Any, Hashable, Union
-from sklearn.model_selection import train_test_split
-from temporal_graph_learning.data.scalers.Scaler import Scaler
+from typing import List, Dict, Hashable, Union
 
 
 class TabularDatasetParser:
@@ -44,44 +40,3 @@ class TabularDatasetParser:
             dimensions: TabularDatasetParser(dataset_slice.reset_index(drop=True))
             for dimensions, dataset_slice in self._dataset.groupby(dimensions, as_index=False)
         }
-
-    # Scaler methods
-    def scale_dimension(self, dimension: str, scaler: Scaler) -> Tuple[pd.DataFrame, Any]:
-        return scaler.initialize_scaler_and_scale_data(self.retrieve_dimensions_from_dataset([dimension]))
-
-    def get_scaler_by_dimension(self, dimension: str):
-        return self._dimension_to_scaler.get(dimension)
-
-    def store_scaler_by_dimension(self, dimension: str, scaler):
-        self._dimension_to_scaler[dimension] = scaler
-
-    # Split methods
-    def train_test_split(
-            self,
-            *dimensions_set: List[str],
-            test_size=0.2,
-            shuffle=False,
-            stratify=None
-    ) -> Tuple["TabularDatasetParser", ...]:
-        return tuple(
-            TabularDatasetParser(split)
-            for split in train_test_split(
-                *[self.retrieve_dimensions_from_dataset(dimensions) for dimensions in dimensions_set],
-                test_size=test_size,
-                shuffle=shuffle,
-                stratify=stratify
-            )
-        )
-
-    # Tensor methods
-    def to_tensor(self):
-        return torch.tensor(
-            self._dataset.values,
-            dtype=torch.float32,
-        )
-
-    def get_dimensions_from_dataset_parsed_as_tensor(self, dimensions: List[str]):
-        return torch.tensor(
-            self.retrieve_dimensions_from_dataset(dimensions).values,
-            dtype=torch.float32
-        )
