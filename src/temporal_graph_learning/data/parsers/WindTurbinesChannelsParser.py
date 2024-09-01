@@ -152,13 +152,3 @@ class WindTurbinesChannelsParser(TabularDatasetParser):
             channels.loc[:, pd.IndexSlice[:, [masks_label]]],
             channels.drop(columns=channels.loc[:, pd.IndexSlice[:, channels_drop]].columns)
         )
-
-
-
-if __name__ == '__main__':
-
-    folder = '/Users/ivandonofrio/Workplace/Thesis/TemporalGraphLearning/assets'
-    dataset_channels = pd.read_csv(f'{folder}/wind_turbines_channels.csv')
-
-    parser = WindTurbinesChannelsParser(dataset_channels)
-    print(parser.get_target_mask_and_channels()[2].columns)
