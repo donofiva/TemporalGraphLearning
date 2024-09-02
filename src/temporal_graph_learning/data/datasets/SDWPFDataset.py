@@ -51,20 +51,8 @@ class SDWPFDataset(DatetimeDataset, MissingValuesMixin):
 
     def _compute_cosine_similarity(self) -> np.ndarray:
 
-        # Stack vertically exogenous variables for pairwise cosine similarity
-        channels_stack = [
-            channel.droplevel(1, axis=1).reset_index(drop=True)
-            for channel in self.exogenous.values()
-        ]
-
-        channels_stack = pd.concat(
-            channels_stack,
-            axis=0,
-            ignore_index=True
-        )
-
         # Enforce shape and remove missing values
-        channels_stack = channels_stack.values.T
+        channels_stack = self.exogenous["channels_"].stack(1).values.T
         channels_stack = channels_stack[:, ~np.isnan(channels_stack).any(axis=0)]
 
         # Compute pairwise cosine similarity matrix
