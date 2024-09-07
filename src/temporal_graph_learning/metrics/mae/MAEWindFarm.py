@@ -1,15 +1,39 @@
+import numpy as np
 import pandas as pd
-from sklearn.metrics import mean_absolute_error
+
+from typing import Tuple, Optional
+from temporal_graph_learning.metrics.Metric import Metric
 
 
-class MAEWindFarm:
+class MAEWindFarm(Metric):
 
-    def __init__(self):
-        pass
+    def __init__(self, time_index: Optional[int] = None):
+        super().__init__(time_index)
 
-    @staticmethod
-    def compute(targets: pd.DataFrame, targets_predicted: pd.DataFrame) -> float:
-        return mean_absolute_error(
-            targets.groupby(level=1, axis=1).sum(),
-            targets_predicted.groupby(level=1, axis=1).sum()
-        )
+    def aggregate(
+            self,
+            targets: pd.DataFrame,
+            predictions: pd.DataFrame,
+            masks: Optional[pd.DataFrame]
+    ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+
+        # Aggregate targets and predictions
+        targets = targets.groupby(level=1, axis=1).sum()
+        predictions = predictions.groupby(level=1, axis=1).sum()
+
+        # Aggregate masks
+        if masks is None:
+
+            # Initialize masks as copy of target and then assign identity mask
+            masks = targets.copy()
+            masks.loc[:, :] = 1
+
+        else:
+
+            # Else preserve timeslot if at least wind farm is available
+            masks = masks.groupby(level=1, axis=1).max()
+
+        return targets, predictions, masks
+
+    def compute(self, targets: np.ndarray, predictions: np.ndarray, masks: np.array) -> float:
+        return np.abs(targets - predictions).sum() / masks.sum()

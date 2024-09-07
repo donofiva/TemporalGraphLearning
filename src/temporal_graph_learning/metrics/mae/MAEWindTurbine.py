@@ -1,28 +1,22 @@
+import numpy as np
 import pandas as pd
-from sklearn.metrics import mean_absolute_error
+
+from typing import Tuple, Optional
+from temporal_graph_learning.metrics.Metric import Metric
 
 
-class MAEWindTurbine:
+class MAEWindTurbine(Metric):
 
-    def __init__(self):
-        pass
+    def __init__(self, time_index: Optional[int] = None):
+        super().__init__(time_index)
 
-    @staticmethod
-    def compute(targets: pd.DataFrame, targets_predicted: pd.DataFrame) -> pd.DataFrame:
+    def aggregate(
+            self,
+            targets: pd.DataFrame,
+            predictions: pd.DataFrame,
+            masks: Optional[pd.DataFrame]
+    ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        return targets, predictions, masks
 
-        # Metrics buffer
-        metrics = {}
-
-        # Populate metrics buffer
-        for wind_turbine in targets.columns.get_level_values(0).unique():
-            metrics[wind_turbine] = mean_absolute_error(
-                targets.loc[:, pd.IndexSlice[wind_turbine, :]],
-                targets_predicted.loc[:, pd.IndexSlice[wind_turbine, :]]
-            )
-
-        # Build metrics dataframe
-        return pd.DataFrame(
-            list(metrics.values()),
-            index=list(metrics.keys()),
-            columns=['MAE']
-        )
+    def compute(self, targets: np.ndarray, predictions: np.ndarray, masks: np.array) -> float:
+        return np.abs(targets - predictions).sum() / masks.sum()

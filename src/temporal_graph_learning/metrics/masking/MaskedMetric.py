@@ -21,7 +21,17 @@ class MaskedMetric:
         )
 
     def compute(self, targets: pd.DataFrame, targets_predicted: pd.DataFrame):
-        return self._metric.compute(
+
+        # Compute metric
+        metric = self._metric.compute(
             self._mask_targets(targets),
             self._mask_targets(targets_predicted)
         )
+
+        # Adjust metric
+        total = 1
+
+        for dimension in targets.shape:
+            total *= dimension
+
+        return metric * total / self._masks.sum().sum()
