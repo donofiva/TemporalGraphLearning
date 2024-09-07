@@ -16,7 +16,7 @@ class RMSEWindTurbine(Metric):
             predictions: pd.DataFrame,
             masks: Optional[pd.DataFrame]
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-        pass
+        return targets, predictions, masks
 
     def compute(self, targets: np.ndarray, predictions: np.ndarray, masks: np.array):
-        pass
+        return np.sqrt(((targets - predictions) ** 2).sum() / masks.sum())

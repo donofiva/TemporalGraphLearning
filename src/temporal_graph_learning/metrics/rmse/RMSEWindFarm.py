@@ -16,7 +16,24 @@ class RMSEWindFarm(Metric):
             predictions: pd.DataFrame,
             masks: Optional[pd.DataFrame]
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-        pass
+
+        # Aggregate targets and predictions
+        targets = targets.groupby(level=1, axis=1).sum()
+        predictions = predictions.groupby(level=1, axis=1).sum()
+
+        # Aggregate masks
+        if masks is None:
+
+            # Initialize masks as copy of target and then assign identity mask
+            masks = targets.copy()
+            masks.loc[:, :] = 1
+
+        else:
+
+            # Else preserve timeslot if at least wind farm is available
+            masks = masks.groupby(level=1, axis=1).max()
+
+        return targets, predictions, masks
 
     def compute(self, targets: np.ndarray, predictions: np.ndarray, masks: np.array):
-        pass
+        return np.sqrt(((targets - predictions) ** 2).sum() / masks.sum())
